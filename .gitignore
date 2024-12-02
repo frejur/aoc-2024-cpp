@@ -1,3 +1,9 @@
+# AOC puzzle input files
+input/
+
+# Builds
+build/
+
 # Prerequisites
 *.d
 
