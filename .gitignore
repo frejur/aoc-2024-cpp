@@ -4,6 +4,9 @@ input/
 # Builds
 build/
 
+# CMake cache
+CMakeLists.txt.user
+
 # Prerequisites
 *.d
 
