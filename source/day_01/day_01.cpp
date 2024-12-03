@@ -13,7 +13,7 @@ const std::string& aoc24_01::input_file()
 }
 
 namespace {
-constexpr int ttl_w{20}; // Width (including padding) of answer title
+constexpr int ttl_w{25}; // Width (including padding) of answer title
 }
 
 //------------------------------------------------------------------------------
@@ -31,10 +31,13 @@ try {
 	std::sort(right_v.begin(), right_v.end());
 
 	int p1_dist = total_l_r_dist(left_v, right_v);
+	int p2_sim_score = total_l_r_similarity_score(left_v, right_v);
 
 	// Answers
 	std::cout << std::left;
 	std::cout << std::setw(ttl_w) << "Total distance:" << p1_dist << '\n';
+	std::cout << std::setw(ttl_w) << "Total similarity score:" << p2_sim_score
+	          << '\n';
 
 	return 0;
 } catch (const std::exception& e) {

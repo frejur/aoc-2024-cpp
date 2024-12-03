@@ -6,6 +6,7 @@ set(T_THIS "aoc_2024_day_${day_number}")
 add_executable(${T_THIS}
     day_01.h day_01.cpp
     part_01.cpp
+    part_02.cpp
 )
 
 # Dynamically copy the puzzle sample input into a
