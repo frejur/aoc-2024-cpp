@@ -17,8 +17,8 @@ function(apd list_var)
 endfunction()
 
 # Targets and directories
-set(TARGETS "Day 1")
-set(DIRS    "day_01")
+set(TARGETS "Day 1"  "Day 2")
+set(DIRS    "day_01" "day_02")
 
 # Ensure TARGETS length == DIRS length
 list(LENGTH TARGETS num_targets)
