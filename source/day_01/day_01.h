@@ -5,8 +5,6 @@
 
 namespace aoc24_01 {
 
-const std::string& input_file();
-
 void read_input_into_l_r(const std::string& path_to_input,
                          std::vector<int>& left_vector,
                          std::vector<int>& right_vector);
