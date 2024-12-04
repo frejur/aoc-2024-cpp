@@ -1,5 +1,6 @@
-# AOC puzzle input files
+# AOC puzzle and test input files
 input/
+test/
 
 # Builds
 build/
