@@ -7,6 +7,9 @@ add_executable(${T_THIS}
     day_01.h day_01.cpp
     part_01.cpp
     part_02.cpp
+    
+    ../lib/puzzle.h
+    ../lib/puzzle.cpp
 )
 
 # Dynamically copy the puzzle sample input into a
