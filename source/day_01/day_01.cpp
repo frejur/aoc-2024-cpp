@@ -1,31 +1,26 @@
 #include "day_01.h"
+#include "../lib/puzzle.h"
 #include <algorithm>
 #include <cassert>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <vector>
 
-const std::string& aoc24_01::input_file()
-{
-	static const std::string f{"input/20241201_input.txt"};
-	return f;
-}
-
-namespace {
-constexpr int ttl_w{25}; // Width (including padding) of answer title
-}
-
 //------------------------------------------------------------------------------
 
-int main()
+int main(int argc, char* argv[])
 try {
 	using namespace aoc24_01;
+	aoc24::Puzzle pz{1, "Historian Hysteria", argc, argv};
+
+	constexpr size_t sz_inp{1000};
+	constexpr size_t sz_test{6};
+	const size_t sz = (pz.is_testing() ? sz_test : sz_inp);
 
 	std::vector<int> left_v, right_v;
-	left_v.reserve(1000), right_v.reserve(1000);
-	read_input_into_l_r(input_file(), left_v, right_v);
-	assert(left_v.size() == 1000 && right_v.size() == 1000);
+	left_v.reserve(sz), right_v.reserve(sz);
+	read_input_into_l_r(pz.input_file_path(), left_v, right_v);
+	assert(left_v.size() == sz && right_v.size() == sz);
 
 	std::sort(left_v.begin(), left_v.end());
 	std::sort(right_v.begin(), right_v.end());
@@ -33,17 +28,17 @@ try {
 	int p1_dist = total_l_r_dist(left_v, right_v);
 	int p2_sim_score = total_l_r_similarity_score(left_v, right_v);
 
-	// Answers
-	std::cout << std::left;
-	std::cout << std::setw(ttl_w) << "Total distance:" << p1_dist << '\n';
-	std::cout << std::setw(ttl_w) << "Total similarity score:" << p2_sim_score
-	          << '\n';
+	pz.file_answer(1, "Total distance", p1_dist);
+	pz.file_answer(2, "Total similarity score", p2_sim_score);
+	pz.print_answers();
 
 	return 0;
 } catch (const std::exception& e) {
 	std::cerr << "Error: " << e.what() << '\n';
+	return 1;
 } catch (...) {
 	std::cerr << "Unknown error" << '\n';
+	return 2;
 }
 
 //------------------------------------------------------------------------------
