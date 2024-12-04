@@ -50,6 +50,7 @@ void aoc24_02::read_input_into_reports(const std::string& p,
 	std::string ln;
 	std::istringstream iss;
 	while (std::getline(ifs, ln)) {
+		iss.clear(std::ios_base::goodbit);
 		int lvl = 0;
 		iss.str(ln);
 		std::vector<int> lvl_v;
