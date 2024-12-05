@@ -22,9 +22,13 @@ try {
 	read_input_into_reports(pz.input_file_path(), reports);
 	assert(reports.size() == sz);
 
-	int p1_num_safe = count_safe(reports);
+	std::vector<int> unsafe_idx_v = unsafe_indices(reports);
+	const int num_safe = reports.size() - unsafe_idx_v.size();
+	const int num_safe_dampened = count_safe_dampened(reports, unsafe_idx_v);
+	const int num_safe_total = num_safe + num_safe_dampened;
 
-	pz.file_answer(1, "Number of safe reports", p1_num_safe);
+	pz.file_answer(1, "Undampened safe reports", num_safe);
+	pz.file_answer(2, "Total safe reports", num_safe_total);
 	pz.print_answers();
 
 	return 0;
