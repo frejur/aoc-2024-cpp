@@ -3,7 +3,8 @@
 #include <sstream>
 
 aoc24_03::Mul::Mul(size_t position, int factor_a, int factor_b)
-    : a(factor_a)
+    : enabled(true)
+    , a(factor_a)
     , b(factor_b)
     , pos(position)
 {}
@@ -34,11 +35,11 @@ std::vector<aoc24_03::Mul> aoc24_03::mul_instr_from_string(const std::string& s)
 	return mul_v;
 }
 
-long aoc24_03::sum_all_prod(const std::vector<Mul>& mul_v)
+long aoc24_03::sum_enabled(const std::vector<Mul>& mul_v)
 {
 	long int sum = 0;
 	for (const auto& m : mul_v) {
-		sum += m.product();
+		sum += (m.enabled) ? m.product() : 0;
 	}
 	return sum;
 }

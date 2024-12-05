@@ -6,6 +6,7 @@ set(T_THIS "aoc_2024_day_${day_number}")
 add_executable(${T_THIS}
     day_03.h day_03.cpp
     part_01.cpp
+    part_02.cpp
     
     ../lib/puzzle.h
     ../lib/puzzle.cpp
@@ -34,6 +35,11 @@ add_custom_command(TARGET ${T_THIS} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/../../test/202412${day_number}_test.txt
         $<TARGET_FILE_DIR:${T_THIS}>/test/202412${day_number}_test.txt
+)
+add_custom_command(TARGET ${T_THIS} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../test/202412${day_number}_test_p2.txt
+        $<TARGET_FILE_DIR:${T_THIS}>/test/202412${day_number}_test_p2.txt
 )
 
 # Test answers
