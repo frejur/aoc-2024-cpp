@@ -1,5 +1,5 @@
-#ifndef DAY_01_H
-#define DAY_01_H
+#ifndef DAY_02_H
+#define DAY_02_H
 #include <string>
 #include <vector>
 
@@ -29,4 +29,4 @@ std::vector<int> unsafe_dampened_indices_brute(
 
 } // namespace aoc24_02
 
-#endif // DAY_01_H
+#endif // DAY_02_H
