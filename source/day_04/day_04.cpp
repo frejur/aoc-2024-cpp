@@ -16,8 +16,10 @@ try {
 	Grid g{pz.input_file_path(), sz};
 
 	int p1_num_xmas{count_xmas(g)};
+	int p2_num_x_mas{count_x_mas(g)};
 
 	pz.file_answer(1, "Number of \"XMAS\"", p1_num_xmas);
+	pz.file_answer(2, "Number of \"X_MAS\"", p2_num_x_mas);
 	pz.print_answers();
 
 	return 0;

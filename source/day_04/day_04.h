@@ -65,13 +65,17 @@ struct Offset
 	int y;
 };
 
-inline Offset dir_to_xy(Direction dir);
+Offset dir_to_xy(Direction dir);
 
 bool has_neighbour_str(
     const Grid& grid, size_t x, size_t y, const std::string& s, Direction dir);
 
 //------------------------------------------------------------------------------
 // Part 2 (definitions in `part_02.cpp`)
+
+int count_x_mas(const Grid& g);
+
+char neighbour_ch(const Grid& grid, size_t x, size_t y, Direction dir);
 
 } // namespace aoc24_04
 
