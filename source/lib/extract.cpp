@@ -2,8 +2,8 @@
 #include <cassert>
 #include <fstream>
 
-std::vector<std::string> aoc24::read_input_into_strings(const std::string& p,
-                                                        size_t grid_size)
+std::vector<std::string> aoc24::read_input_into_grid(const std::string& p,
+                                                     size_t grid_size)
 {
 	std::ifstream ifs{p};
 	if (!ifs) {

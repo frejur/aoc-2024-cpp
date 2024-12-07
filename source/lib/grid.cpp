@@ -17,7 +17,7 @@ bool aoc24::XY::operator!=(const XY& a) const
 
 aoc24::Grid::Grid(const std::string& file_path, size_t grid_size)
     : sz(grid_size)
-    , g_(read_input_into_strings(file_path, grid_size))
+    , g_(read_input_into_grid(file_path, grid_size))
 {}
 
 char aoc24::Grid::char_at(size_t x, size_t y) const
