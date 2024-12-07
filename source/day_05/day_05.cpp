@@ -33,7 +33,6 @@ try {
 
 	// Part 2
 	sort(updates, rules);
-	validate(updates, rules);
 	long int total_sum_mid{sum_of_correct_middle_page_numbers(updates)};
 	long int p2_resorted_sum_mid{total_sum_mid - p1_sum_mid};
 

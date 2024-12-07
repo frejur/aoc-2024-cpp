@@ -3,6 +3,9 @@
 
 void aoc24_05::Page_order::Update::validate(const Ruleset& rules)
 {
+	if (s_ != Status::Not_validated) {
+		return;
+	}
 	for (size_t i = 0; i < pages.size() - 1; ++i) {
 		int page = pages[i];
 		for (size_t j = i + 1; j < pages.size(); ++j) {
@@ -28,6 +31,7 @@ void aoc24_05::Page_order::Update::sort(const Ruleset& rules)
 	std::sort(pages.begin(), pages.end(), [&rules](int a, int b) {
 		return rules.x_must_preceed_y(a, b);
 	});
+	s_ = Status::Correct;
 }
 
 //------------------------------------------------------------------------------
@@ -148,6 +152,8 @@ void aoc24_05::sort(std::vector<Page_order::Update>& updates,
                     const Page_order::Ruleset& rules)
 {
 	for (auto& upd : updates) {
-		upd.sort(rules);
+		if (!upd.is_correct()) {
+			upd.sort(rules);
+		}
 	}
 }
