@@ -10,6 +10,10 @@ add_executable(${T_THIS}
     
     ../lib/puzzle.h
     ../lib/puzzle.cpp
+    ../lib/grid.h
+    ../lib/grid.cpp
+    ../lib/extract.h
+    ../lib/extract.cpp
 )
 
 # Dynamically copy the puzzle sample input into a
