@@ -1,6 +1,6 @@
 #include "day_04.h"
 
-int aoc24_04::count_xmas(const aoc24::Grid& g)
+int aoc24_04::count_xmas(const aoc24::Char_grid& g)
 {
 	int n = 0;
 	aoc24::XY xy{0, 0};
@@ -33,7 +33,7 @@ aoc24_04::Offset aoc24_04::dir_to_xy(Direction dir)
 	return {offs_x, offs_y};
 }
 
-bool aoc24_04::has_neighbour_str(const aoc24::Grid& grid,
+bool aoc24_04::has_neighbour_str(const aoc24::Char_grid& grid,
                                  size_t x,
                                  size_t y,
                                  const std::string& s,

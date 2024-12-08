@@ -13,7 +13,7 @@ try {
 	constexpr size_t sz_inp{140};
 	constexpr size_t sz_test{10};
 	const size_t sz = (pz.is_testing() ? sz_test : sz_inp);
-	Grid g{pz.input_file_path(), sz};
+	aoc24::Char_grid g{pz.input_file_path(), sz};
 
 	int p1_num_xmas{count_xmas(g)};
 	int p2_num_x_mas{count_x_mas(g)};

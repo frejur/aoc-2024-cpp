@@ -1,6 +1,6 @@
 #include "day_04.h"
 
-char aoc24_04::neighbour_ch(const aoc24::Grid& grid,
+char aoc24_04::neighbour_ch(const aoc24::Char_grid& grid,
                             size_t x,
                             size_t y,
                             Direction dir)
@@ -9,7 +9,7 @@ char aoc24_04::neighbour_ch(const aoc24::Grid& grid,
 	return grid.char_at(x + offs.x, y + offs.y);
 }
 
-int aoc24_04::count_x_mas(const aoc24::Grid& g)
+int aoc24_04::count_x_mas(const aoc24::Char_grid& g)
 {
 	int n = 0;
 	aoc24::XY xy{0, 0};

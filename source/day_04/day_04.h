@@ -26,20 +26,23 @@ struct Offset
 
 Offset dir_to_xy(Direction dir);
 
-bool has_neighbour_str(const aoc24::Grid& grid,
+bool has_neighbour_str(const aoc24::Char_grid& grid,
                        size_t x,
                        size_t y,
                        const std::string& s,
                        Direction dir);
 
-int count_xmas(const aoc24::Grid& g);
+int count_xmas(const aoc24::Char_grid& g);
 
 //------------------------------------------------------------------------------
 // Part 2 (definitions in `part_02.cpp`)
 
-int count_x_mas(const aoc24::Grid& g);
+int count_x_mas(const aoc24::Char_grid& g);
 
-char neighbour_ch(const aoc24::Grid& grid, size_t x, size_t y, Direction dir);
+char neighbour_ch(const aoc24::Char_grid& grid,
+                  size_t x,
+                  size_t y,
+                  Direction dir);
 
 } // namespace aoc24_04
 
