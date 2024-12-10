@@ -30,6 +30,7 @@ public:
 	void previous(XY& xy) const;
 	void next(XY& xy) const;
 	size_t size() const { return sz; }
+	bool is_oob(XY xy) const { return !valid_xy(xy.x, xy.y); };
 
 protected:
 	Grid(size_t grid_size);
@@ -51,13 +52,15 @@ public:
 	XY find_char(char c, size_t start_x, size_t start_y) const;
 	XY find_char(
 	    char c, size_t start_x, size_t start_y, int offs_x, int offs_y) const;
-	virtual void check_size() const override;
 	static const char nochar = '\0';
 
 protected:
 	std::vector<std::string> g_;
 	char ch_at(size_t x, size_t y, bool skip_check = false) const;
+	virtual void check_size() const override;
 };
+
+
 } // namespace aoc24
 
 #endif // GRID_H

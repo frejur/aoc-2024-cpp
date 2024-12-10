@@ -57,6 +57,7 @@ void aoc24::Grid::next(XY& xy) const
 bool aoc24::Grid::valid_xy(size_t x, size_t y, bool skip_check) const
 {
 	if (!sz_checked) {
+		check_size();
 		sz_checked = true;
 	}
 	if (skip_check) {
