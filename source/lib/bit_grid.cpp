@@ -53,6 +53,10 @@ int aoc24::Bit_grid::bit_at(size_t x, size_t y) const
 	return b_at(get_only_map(), x, y);
 }
 
+int aoc24::Bit_grid::bit_at(const std::string& map_key, size_t x, size_t y) const
+{
+	return b_at(get_map(map_key), x, y);
+}
 void aoc24::Bit_grid::set()
 {
 	auto& m = get_only_map();
