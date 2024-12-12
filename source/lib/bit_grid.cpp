@@ -9,6 +9,7 @@ aoc24::Bit_grid::Bit_grid(size_t grid_size,
 	add_map(valid_key(name), std::move(dyn_bitset));
 	auto& m = get_only_map();
 	mask_ = m.new_copy();
+	print_ = m.new_copy();
 }
 
 aoc24::XY aoc24::Bit_grid::find_bit(bool bit,
@@ -135,6 +136,12 @@ void aoc24::Bit_grid::add_map(const std::string& name,
 	}
 }
 
+void aoc24::Bit_grid::combine_maps(const std::string& map_key_to_combine_into,
+                                   const std::string& map_key_to_add)
+{
+	get_map(map_key_to_combine_into) |= get_map(map_key_to_add);
+}
+
 int aoc24::Bit_grid::count() const
 {
 	return get_only_map().count();
@@ -145,29 +152,23 @@ int aoc24::Bit_grid::count(const std::string& map_key) const
 	return get_map(map_key).count();
 }
 
-void aoc24::Bit_grid::print(std::ostream& ostr)
+void aoc24::Bit_grid::print(std::ostream& ostr) const
 {
-	auto& m = get_only_map();
-	size_t i = 0;
-	for (size_t y = 0; y < sz; ++y) {
-		for (size_t x = 0; x < sz; ++x) {
-			ostr << (x == 0 ? "" : " ") << (m.test(i) ? '1' : '0');
-			++i;
-		}
-		ostr << '\n';
-	}
+	print(get_only_map(), ostr);
 }
-void aoc24::Bit_grid::print(const std::string& map_key, std::ostream& ostr)
+void aoc24::Bit_grid::print(const std::string& map_key, std::ostream& ostr) const
 {
-	auto& m = get_map(map_key);
-	size_t i = 0;
-	for (size_t y = 0; y < sz; ++y) {
-		for (size_t x = 0; x < sz; ++x) {
-			ostr << (x == 0 ? "" : " ") << (m.test(i) ? '1' : '0');
-			++i;
-		}
-		ostr << '\n';
+	print(get_map(map_key), ostr);
+}
+
+void aoc24::Bit_grid::print(std::initializer_list<std::string> map_keys,
+                            std::ostream& ostr) const
+{
+	print_->reset();
+	for (const auto& key : map_keys) {
+		*print_ |= get_map(key);
 	}
+	print(*print_, ostr);
 }
 
 int aoc24::Bit_grid::b_at(const Dyn_bitset& map,
@@ -383,4 +384,16 @@ aoc24::XY aoc24::Bit_grid::find_bit(const Dyn_bitset& m,
 		}
 	}
 	return XY::oob;
+}
+
+void aoc24::Bit_grid::print(const Dyn_bitset& map, std::ostream& ostr) const
+{
+	size_t i = 0;
+	for (size_t y = 0; y < sz; ++y) {
+		for (size_t x = 0; x < sz; ++x) {
+			ostr << (x == 0 ? "" : " ") << (map.test(i) ? '1' : '0');
+			++i;
+		}
+		ostr << '\n';
+	}
 }

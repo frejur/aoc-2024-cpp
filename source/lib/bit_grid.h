@@ -39,6 +39,8 @@ public:
 
 	void add_map(const std::string& name);
 	void add_map(const std::string& name, std::unique_ptr<Dyn_bitset>);
+	void combine_maps(const std::string& map_key_to_combine_into,
+	                  const std::string& map_key_to_add);
 
 	void mask_row(int row, int leading_0, int trailing_0);
 	void mask_col(int col, int leading_0, int trailing_0);
@@ -48,14 +50,17 @@ public:
 
 	int count() const;
 	int count(const std::string& map_key) const;
-	void print(std::ostream& ostr = std::cout);
-	void print(const std::string& map_key, std::ostream& ostr = std::cout);
+	void print(std::ostream& ostr = std::cout) const;
+	void print(const std::string& map_key, std::ostream& ostr = std::cout) const;
+	void print(std::initializer_list<std::string> map_keys,
+	           std::ostream& ostr = std::cout) const;
 
 	static constexpr int nobit = -1;
 
 protected:
 	std::unordered_map<std::string, std::unique_ptr<Dyn_bitset>> map_;
 	std::unique_ptr<Dyn_bitset> mask_;
+	mutable std::unique_ptr<Dyn_bitset> print_;
 
 	int b_at(const Dyn_bitset& map,
 	         size_t x,
@@ -78,6 +83,7 @@ protected:
 	            size_t y,
 	            int offs_z,
 	            int offs_y) const;
+	void print(const Dyn_bitset& map, std::ostream& ostr = std::cout) const;
 };
 
 } // namespace aoc24
