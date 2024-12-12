@@ -6,6 +6,9 @@ set(T_THIS "aoc_2024_day_${day_number}")
 add_executable(${T_THIS}
     day_06.h day_06.cpp
     part_01.cpp
+    part_02.cpp
+    keys.h keys.cpp
+    guard.h guard.cpp
     
     ../lib/puzzle.h
     ../lib/puzzle.cpp
@@ -16,6 +19,7 @@ add_executable(${T_THIS}
     ../lib/bit_grid.cpp
     ../lib/extract.h
     ../lib/extract.cpp
+    trail_grid.h trail_grid.cpp
 )
 
 # Dynamically copy the puzzle sample input into a

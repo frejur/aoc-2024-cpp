@@ -1,103 +1,17 @@
 #include "day_06.h"
-#include <sstream>
 #include <stdexcept>
-namespace {
-constexpr char obstacle{'#'};
-const std::string& obstacle_key()
-{
-	static const std::string k{"Obstacles"};
-	return k;
-}
-const std::string& trail_key()
-{
-	static const std::string k{"Trail"};
-	return k;
-}
-} // namespace
 
-aoc24_06::Pos2d aoc24_06::dir_to_xy(Direction dir)
+int aoc24_06::steps_between(const Pos2d& a, const Pos2d& b)
 {
-	using D = Direction;
-	int offs_x{}, offs_y{};
-	offs_x = dir == D::East ? 1 : (dir == D::West ? -1 : 0);
-	offs_y = dir == D::South ? 1 : (dir == D::North ? -1 : 0);
-	return {offs_x, offs_y};
-}
-
-aoc24_06::Guard::Guard(Pos2d position)
-    : pos(position)
-    , dir(Direction::North)
-{}
-
-aoc24_06::Pos2d aoc24_06::Guard::current_position() const
-{
-	return pos;
-}
-
-aoc24_06::Direction aoc24_06::Guard::current_direction() const
-{
-	return dir;
-}
-void aoc24_06::Guard::move_forward(int steps)
-{
-	if (steps < 1) {
-		throw std::invalid_argument("Parameter steps must > 0");
-	}
-	Pos2d offs{dir_to_xy(dir)};
-	pos.x += offs.x * steps;
-	pos.y += offs.y * steps;
-}
-void aoc24_06::Guard::turn_right()
-{
-	dir = static_cast<Direction>((static_cast<int>(dir) + 1) % 4);
-}
-
-//------------------------------------------------------------------------------
-
-aoc24_06::Trail_grid::Trail_grid(const aoc24::Char_grid& reference_grid,
-                                 std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset)
-    : Bit_grid(reference_grid.size(), obstacle_key(), std::move(dyn_bitset))
-{
-	aoc24::XY xy{0, 0};
-	while (xy = reference_grid.find_char(obstacle, xy.x, xy.y),
-	       xy != aoc24::XY::oob) {
-		set(xy);
-		reference_grid.next(xy);
-	}
-	add_map(trail_key());
-}
-
-void aoc24_06::Trail_grid::mark_tile(aoc24::XY pos)
-{
-	set(trail_key(), pos);
-}
-
-void aoc24_06::Trail_grid::mark_trail(aoc24::XY a, aoc24::XY b)
-{
+	int s = 0;
 	if (a.y == b.y) {
-		// Horizontal
-		int start = static_cast<int>((std::min)(a.x, b.x));
-		int end = static_cast<int>((std::max)(a.x, b.x));
-		mask_row(a.y, start, sz - end - 1);
+		s = std::abs(static_cast<int>(a.x) - static_cast<int>(b.x));
 	} else if (a.x == b.x) {
-		// Vertical
-		int start = static_cast<int>((std::min)(a.y, b.y));
-		int end = static_cast<int>((std::max)(a.y, b.y));
-		mask_col(a.x, start, sz - end - 1);
+		s = std::abs(static_cast<int>(a.y) - static_cast<int>(b.y));
 	} else {
 		throw std::invalid_argument("Only horizontal / vertical paths allowed");
 	}
-	apply_mask(trail_key());
-}
-
-void aoc24_06::Trail_grid::print_trail(std::ostream& ostr)
-{
-	print(trail_key());
-}
-
-int aoc24_06::Trail_grid::number_of_marked_tiles() const
-{
-	return count(trail_key());
+	return s;
 }
 
 aoc24_06::Guard aoc24_06::spawn_guard(const aoc24::Char_grid& grid)
@@ -109,88 +23,180 @@ aoc24_06::Guard aoc24_06::spawn_guard(const aoc24::Char_grid& grid)
 	return Guard({static_cast<int>(pos.x), static_cast<int>(pos.y)});
 }
 
-int aoc24_06::move_to_limit(Guard& guard, const Trail_grid& grid)
+aoc24::XY aoc24_06::pos_to_xy(const aoc24::Grid& grid,
+                              const Pos2d& pos,
+                              const bool skip_check)
 {
-	Pos2d pos{guard.current_position()};
-	int size{static_cast<int>(grid.size())};
-
-	if (pos.x < 0 || pos.y < 0
-	    || grid.is_oob(
-	        {static_cast<size_t>(pos.x), static_cast<size_t>(pos.y)})) {
-		return 0;
+	if (!skip_check && grid.is_oob(pos.x, pos.y)) {
+		throw std::invalid_argument("Cannot convert x=" + std::to_string(pos.x)
+		                            + " and y=" + std::to_string(pos.y)
+		                            + " to a valid XY of map with size "
+		                            + std::to_string(grid.size()));
 	}
-
-	int steps = 0;
-	switch (guard.current_direction()) {
-	case Direction::North:
-		steps = guard.current_position().y;
-		break;
-	case Direction::East:
-		steps = size - guard.current_position().x - 1;
-		break;
-	case Direction::South:
-		steps = size - guard.current_position().y - 1;
-		break;
-	case Direction::West:
-		steps = guard.current_position().x;
-		break;
-	}
-
-	guard.move_forward(steps);
-
-	return steps;
+	return {static_cast<size_t>(pos.x), static_cast<size_t>(pos.y)};
 }
 
-void aoc24_06::move_and_mark_until_oob(Guard& guard, Trail_grid& grid)
+aoc24_06::Pos2d aoc24_06::xy_to_pos(const aoc24::XY& pos, const bool skip_check)
 {
-	Pos2d start_pos{guard.current_position()};
-	grid.mark_tile(
-	    {static_cast<size_t>(start_pos.x), static_cast<size_t>(start_pos.y)});
+	return {static_cast<int>(pos.x), static_cast<int>(pos.y)};
+}
 
-	bool is_in = true;
-	while (is_in) {
-		auto c_szt = [](int i) { return static_cast<size_t>(i); };
+//------------------------------------------------------------------------------
 
-		start_pos = guard.current_position();
-		Pos2d offs{dir_to_xy(guard.current_direction())};
-		const aoc24::XY start_xy = {c_szt(start_pos.x), c_szt(start_pos.y)};
-		const aoc24::XY obstacle_xy = grid.find_bit(obstacle_key(),
-		                                            1,
-		                                            start_xy.x,
-		                                            start_xy.y,
-		                                            offs.x,
-		                                            offs.y);
-		aoc24::XY final_guard_xy = {0, 0};
+void aoc24_06::move_and_mark_until_condition(Move& move,
+                                             Guard& guard,
+                                             Trail_grid& grid,
+                                             Read_G_Gr_fn pre_check_fn,
+                                             Edit_G_Gr_fn initial_action_fn,
+                                             Read_G_Gr_fn find_tile_fn,
+                                             Test_Move_fn stop_condition_fn,
+                                             Edit_G_Gr_fn move_fn,
+                                             Edit_G_Gr_fn stop_fn,
+                                             Edit_G_Gr_fn mark_fn)
+{
+	if (stop_condition_fn == skip_function) {
+		throw std::invalid_argument(
+		    "The stop condition function cannot be skipped");
+	}
+	if (move.type != Move_type::Unknown) {
+		throw std::invalid_argument(
+		    "Expected an initial Move object of type Unknown(0) but got "
+		    + std::to_string(static_cast<int>(move.type)));
+	}
+	if (move.start_position != move.end_position) {
+		throw std::invalid_argument(
+		    "Expected the start and end positions of the intial Move object to "
+		    "be identical but got ("
+		    + std::to_string(move.start_position.x) + ", "
+		    + std::to_string(move.start_position.y) + ") vs ("
+		    + std::to_string(move.end_position.x) + ", "
+		    + std::to_string(move.end_position.y) + ")");
+	}
 
-		if (obstacle_xy == aoc24::XY::oob) {
-			// No obstacle in the way, move to boundary limit
-			move_to_limit(guard, grid);
+	if (pre_check_fn != skip_function) {
+		pre_check_fn(move, guard, grid);
+	}
 
-			Pos2d final{guard.current_position()};
-			final_guard_xy = {c_szt(final.x), c_szt(final.y)};
-			guard.move_forward(); // Move one step past bounds
-			is_in = false;
-		} else {
-			// Obstacle, move to tile before it, then turn right
-			guard.move_forward(steps_between(start_xy, obstacle_xy) - 1);
-			Pos2d final{guard.current_position()};
-			final_guard_xy = {c_szt(final.x), c_szt(final.y)};
-			guard.turn_right();
+	if (initial_action_fn != skip_function) {
+		initial_action_fn(move, guard, grid);
+	}
+
+	bool stop = false;
+	while (!stop) {
+		if (find_tile_fn != skip_function) {
+			find_tile_fn(move, guard, grid);
 		}
 
-		grid.mark_trail(start_xy, final_guard_xy);
+		if (!stop_condition_fn(move)) {
+			if (move_fn != skip_function) {
+				move_fn(move, guard, grid);
+			}
+		} else {
+			if (stop_fn != skip_function) {
+				stop_fn(move, guard, grid);
+			}
+			stop = true;
+		}
+
+		if (mark_fn != skip_function) {
+			mark_fn(move, guard, grid);
+		}
+
+		if (!stop) {
+			move.start_position = move.end_position;
+		}
 	}
 }
 
-int aoc24_06::steps_between(const aoc24::XY& a, const aoc24::XY& b)
+//------------------------------------------------------------------------------
+
+void aoc24_06::move_to_end(Move& move, Guard& guard, Trail_grid& grid)
 {
-	int s = 0;
-	if (a.y == b.y) {
-		s = std::abs(static_cast<int>(a.x) - static_cast<int>(b.x));
-	} else if (a.x == b.x) {
-		s = std::abs(static_cast<int>(a.y) - static_cast<int>(b.y));
-	} else {
-		throw std::invalid_argument("Only horizontal / vertical paths allowed");
+	const Pos2d& pos{guard.current_position()};
+	if (grid.is_oob(pos.x, pos.y)) {
+		return;
 	}
-	return s;
+	guard.set_position(move.end_position);
+}
+
+void aoc24_06::move_to_obstruction_and_turn(Move& move,
+                                            Guard& guard,
+                                            Trail_grid& grid)
+{
+	if (guard.current_position() == move.end_position) {
+		// Already at obstruction
+		guard.turn_right();
+	} else {
+		// Obstruction, move to tile before it, then turn right
+		guard.set_position(move.end_position);
+		guard.turn_right();
+	}
+}
+
+//------------------------------------------------------------------------------
+
+void aoc24_06::mark_start(Move& move, Guard& guard, Trail_grid& grid)
+{
+	// Move remains unchanged
+	grid.mark_tile(pos_to_xy(grid, guard.current_position()));
+}
+
+//------------------------------------------------------------------------------
+
+void aoc24_06::find_obstruction(Move& move,
+                                const Guard& guard,
+                                const Trail_grid& grid)
+{
+	if (move.type == Move_type::First_obstruction) {
+		// Already taken care of by pre-check function
+		move.type = Move_type::Obstruction;
+		return;
+	}
+	Pos2d start_pos = guard.current_position();
+	Pos2d offs{dir_to_xy(guard.current_direction())};
+	const aoc24::XY start_xy = pos_to_xy(grid, start_pos);
+	const aoc24::XY obstruction_xy = grid.find_bit(Trail_grid::obstruction_key(),
+	                                               1,
+	                                               start_xy.x,
+	                                               start_xy.y,
+	                                               offs.x,
+	                                               offs.y);
+
+	if (obstruction_xy == aoc24::XY::oob) {
+		set_oob_move(move, offs.x, offs.y, grid.size());
+	} else {
+		move.type = (move.type == Move_type::Unknown)
+		                ? Move_type::First_obstruction
+		                : Move_type::Obstruction;
+		move.end_position = {static_cast<int>(obstruction_xy.x - offs.x),
+		                     static_cast<int>(obstruction_xy.y - offs.y)};
+	}
+}
+void aoc24_06::set_oob_move(Move& move,
+                            const int dir_offs_x,
+                            const int dir_offs_y,
+                            const int size)
+{
+	move.type = Move_type::Leave;
+	move.end_position.x = (dir_offs_x != 0)
+	                          ? ((dir_offs_x == -1) ? 0 : size - 1)
+	                          : move.end_position.x;
+	move.end_position.y = (dir_offs_y != 0)
+	                          ? ((dir_offs_y == -1) ? 0 : size - 1)
+	                          : move.end_position.y;
+}
+
+//------------------------------------------------------------------------------
+
+bool aoc24_06::no_obstruction_ahead(const Move& move)
+{
+	return move.type == Move_type::Leave;
+}
+
+//------------------------------------------------------------------------------
+
+void aoc24_06::mark_trail(Move& move, Guard& guard, Trail_grid& grid)
+{
+	grid.mark_tiles(pos_to_xy(grid, move.start_position),
+	                pos_to_xy(grid, move.end_position));
 }
