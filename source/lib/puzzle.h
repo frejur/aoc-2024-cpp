@@ -15,7 +15,7 @@ public:
 	Puzzle(int day, const std::string& name, int argc, char* argv[]);
 	std::string input_file_path() const;
 	bool is_testing() const { return use_test; }
-	void file_answer(int part, const std::string& name, int value);
+	void file_answer(int part, const std::string& name, long long value);
 	void file_answer(int part,
 	                 const std::string& name,
 	                 const std::string& value);
@@ -33,7 +33,7 @@ private:
 	std::vector<Answer> ans_v;
 
 	std::string get(const int part);
-	int get_int(const int part);
+	long long get_int(const int part);
 };
 //------------------------------------------------------------------------------
 
@@ -46,8 +46,8 @@ public:
 	       int part,
 	       Source source,
 	       const std::string& name,
-	       int tentative,
-	       int definite);
+	       long long tentative,
+	       long long definite);
 	Answer(int day,
 	       int part,
 	       Source source,
@@ -63,8 +63,8 @@ private:
 	const Source src;
 	const int d;
 	const int pt;
-	const int tent_int;
-	const int defn_int;
+	const long long tent_int;
+	const long long defn_int;
 	const std::string nm;
 	const std::string tent_str;
 	const std::string defn_str;

@@ -66,7 +66,9 @@ std::string aoc24::Puzzle::input_file_path() const
 	return p_inp;
 }
 
-void aoc24::Puzzle::file_answer(int part, const std::string& name, int value)
+void aoc24::Puzzle::file_answer(int part,
+                                const std::string& name,
+                                long long value)
 {
 	const int val_part{valid_part(part)};
 	if (ans_v.size() + 1 > max_part) {
@@ -80,7 +82,7 @@ void aoc24::Puzzle::file_answer(int part, const std::string& name, int value)
 	}
 	Answer::Source source = use_test ? Answer::Source::Test
 	                                 : Answer::Source::Final;
-	int secret{get_int(part)};
+	long long secret{get_int(part)};
 	if (secret == invalid_int) {
 		source = Answer::Source::Missing;
 	}
@@ -227,7 +229,7 @@ std::string aoc24::Puzzle::get(const int part)
 	return secret;
 }
 
-int aoc24::Puzzle::get_int(const int part)
+long long aoc24::Puzzle::get_int(const int part)
 {
 	std::string s{get(part)};
 	if (s.empty()) {
@@ -236,7 +238,7 @@ int aoc24::Puzzle::get_int(const int part)
 
 	std::istringstream is{s};
 
-	int secret = 0;
+	long long secret = 0;
 	char c{};
 	is >> std::noskipws;
 
@@ -254,8 +256,8 @@ aoc24::Answer::Answer(int day,
                       int part,
                       Source source,
                       const std::string& name,
-                      int tentative,
-                      int definite)
+                      long long tentative,
+                      long long definite)
     : tp(Type::Integer)
     , src(source)
     , d(day)
