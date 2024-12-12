@@ -31,6 +31,7 @@ public:
 	void next(XY& xy) const;
 	size_t size() const { return sz; }
 	bool is_oob(XY xy) const { return !valid_xy(xy.x, xy.y); };
+	bool is_oob(int x, int y) const { return !valid_xy(x, y); };
 
 protected:
 	Grid(size_t grid_size);
