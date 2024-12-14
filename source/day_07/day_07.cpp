@@ -1,5 +1,6 @@
 #include "day_07.h"
 #include "../lib/puzzle.h"
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -18,16 +19,28 @@ try {
 	constexpr size_t max_test{4};
 	const size_t sz = (pz.is_testing() ? sz_test : sz_inp);
 	const size_t max_ncount = (pz.is_testing() ? max_test : max_inp);
+	const size_t max_opcount = max_ncount - 1;
 
 	std::vector<Equation> eqs{
 	    read_equations_from_file(pz.input_file_path(), sz, max_ncount)};
 
-	std::multimap<size_t, std::string> perm = generate_op_permutations(
-	    max_ncount - 1);
+	std::sort(eqs.begin(), eqs.end(), [](const Equation& a, const Equation& b) {
+		return a.number_count() < b.number_count();
+	});
 
-	long long p1_sum_possible{evaluate_expressions_and_get_sum(eqs, perm)};
+	std::vector<std::string> perm = generate_op_permutations(max_opcount);
 
-	pz.file_answer(1, "Sum of possible", p1_sum_possible);
+	long long p1_sum_possible{
+	    evaluate_all_equations_and_get_sum(eqs, perm, max_opcount)};
+
+	add_permutation_member(perm, '|');
+
+	long long p2_sum_possible_w_pipes{
+	    evaluate_all_equations_and_get_sum(eqs, perm, max_opcount)
+	    + p1_sum_possible};
+
+	pz.file_answer(1, "Sum ('*' and '+')", p1_sum_possible);
+	pz.file_answer(2, "Sum ('*', '+' and '||')", p2_sum_possible_w_pipes);
 	pz.print_answers();
 
 	return 0;

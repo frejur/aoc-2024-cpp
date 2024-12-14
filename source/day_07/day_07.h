@@ -1,7 +1,6 @@
 #ifndef DAY_04_H
 #define DAY_04_H
 #include <iostream>
-#include <map>
 #include <vector>
 
 namespace aoc24_07 {
@@ -29,6 +28,7 @@ public:
 	size_t number_count() const { return num.size(); }
 
 	friend std::istream& operator>>(std::istream& iss, Equation& e);
+	friend std::ostream& operator<<(std::ostream& oss, const Equation& e);
 
 private:
 	bool is_extr;
@@ -37,15 +37,36 @@ private:
 	std::vector<int> num;
 };
 
-std::multimap<size_t, std::string> generate_op_permutations(
-    size_t max_operator_count);
+struct Result
+{
+	Result(long long sum_success_eval, size_t num_success_eval)
+	    : sum(sum_success_eval)
+	    , count_success(num_success_eval)
+	{}
+	long long sum;
+	size_t count_success;
+};
 
-long long evaluate_expressions_and_get_sum(
+std::vector<std::string> generate_op_permutations(size_t max_operator_count);
+
+size_t count_equations_of_size_n(const std::vector<Equation>& sorted_equations,
+                                 size_t n,
+                                 bool count_possibly_true_only = false);
+
+Result evaluate_equations_of_size_n(std::vector<Equation>& sorted_equations,
+                                    const std::string& operators);
+
+long long evaluate_all_equations_and_get_sum(
     std::vector<Equation>& equations,
-    const std::multimap<size_t, std::string>& operator_permutations);
+    const std::vector<std::string>& operator_permutations,
+    size_t max_operator_count);
 
 //------------------------------------------------------------------------------
 // Part 2 (definitions in `part_02.cpp`)
+
+std::vector<char> operators(const std::vector<std::string>& permutations);
+void add_permutation_member(std::vector<std::string>& permutations, char member);
+long long merge(long long a, long long b);
 
 } // namespace aoc24_07
 
