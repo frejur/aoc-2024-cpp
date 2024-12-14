@@ -34,6 +34,7 @@ public:
 
 	// Create mask
 	virtual std::unique_ptr<Dyn_bitset> new_copy() const = 0;
+	virtual std::unique_ptr<Dyn_bitset> new_reset_copy() const = 0;
 
 	virtual void* raw() = 0;
 };
@@ -142,6 +143,13 @@ public:
 	std::unique_ptr<Dyn_bitset> new_copy() const
 	{
 		return std::unique_ptr<Dyn_bitset>(new Dyn_bitset_implementation<Size>);
+	}
+
+	std::unique_ptr<Dyn_bitset> new_reset_copy() const
+	{
+		auto ptr = new_copy();
+		ptr->reset();
+		return ptr;
 	}
 
 	void* raw() override { return &b_; }
