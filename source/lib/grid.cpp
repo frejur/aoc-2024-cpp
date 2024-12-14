@@ -1,5 +1,6 @@
 #include "grid.h"
 #include "extract.h"
+#include <algorithm>
 #include <stdexcept>
 
 const aoc24::XY aoc24::XY::oob = {XY::noxy, XY::noxy};
@@ -133,6 +134,17 @@ aoc24::XY aoc24::Char_grid::find_char(
 		}
 	}
 	return XY::oob;
+}
+
+std::string aoc24::Char_grid::unique_chars() const
+{
+	std::string chars;
+	for (const auto& s : g_) {
+		chars += s;
+	}
+	std::sort(chars.begin(), chars.end());
+	chars.erase(std::unique(chars.begin(), chars.end()), chars.end());
+	return chars;
 }
 
 void aoc24::Char_grid::check_size() const

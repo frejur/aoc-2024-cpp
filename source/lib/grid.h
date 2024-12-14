@@ -54,6 +54,7 @@ public:
 	XY find_char(
 	    char c, size_t start_x, size_t start_y, int offs_x, int offs_y) const;
 	static const char nochar = '\0';
+	std::string unique_chars() const;
 
 protected:
 	std::vector<std::string> g_;
