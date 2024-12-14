@@ -3,13 +3,20 @@
 
 aoc24::Bit_grid::Bit_grid(size_t grid_size,
                           const std::string& name,
-                          std::unique_ptr<Dyn_bitset> dyn_bitset)
+                          Bitset_ptr dyn_bitset)
     : Grid(grid_size)
 {
-	add_map(valid_key(name), std::move(dyn_bitset));
-	auto& m = get_only_map();
-	mask_ = m.new_copy();
-	print_ = m.new_copy();
+	Dyn_bitset& m = add_map(name, std::move(dyn_bitset));
+	mask_ = m.new_reset_copy();
+	print_ = m.new_reset_copy();
+}
+
+aoc24::Bit_grid::Bit_grid(size_t grid_size, Bitset_ptr dyn_bitset)
+    : Grid(grid_size)
+{
+	Dyn_bitset& m = add_dummy_map(std::move(dyn_bitset));
+	mask_ = m.new_reset_copy();
+	print_ = m.new_reset_copy();
 }
 
 aoc24::XY aoc24::Bit_grid::find_bit(bool bit,
@@ -102,24 +109,33 @@ void aoc24::Bit_grid::reset(const std::string& map_key, XY pos)
 	get_map(map_key).reset(xy_to_idx(pos.x, pos.y));
 }
 
-void aoc24::Bit_grid::add_map(const std::string& name)
+aoc24::Dyn_bitset& aoc24::Bit_grid::add_map(const std::string& name)
 {
 	if (map_.empty()) {
 		throw std::logic_error(
 		    "Cannot add map, expected at least one existing map to copy");
 	}
+
+	auto itp = std::make_pair(map_.end(), false);
 	if (map_.find(valid_key(name)) == map_.end()) {
-		map_.insert({name, map_.begin()->second->new_copy()});
-		map_[name]->reset();
+		itp = map_.insert({name, map_.begin()->second->new_reset_copy()});
+		if (!itp.second) {
+			std::runtime_error("Could not add map by name: " + name);
+		}
+		if (has_dummy()) {
+			map_.erase(map_.find(std::string{dummy_char}));
+		}
 		sz_checked = true;
 	} else {
 		throw std::logic_error("Cannot add map, duplicate key: " + name);
 	}
+	return *(itp.first->second);
 }
 
-void aoc24::Bit_grid::add_map(const std::string& name,
-                              std::unique_ptr<Dyn_bitset> dyn_bitset)
+aoc24::Dyn_bitset& aoc24::Bit_grid::add_map(const std::string& name,
+                                            Bitset_ptr dyn_bitset)
 {
+	auto itp = std::make_pair(map_.end(), false);
 	if (map_.find(valid_key(name)) == map_.end()) {
 		sz_checked = false;
 		if (sz * sz != dyn_bitset->size()) {
@@ -129,11 +145,18 @@ void aoc24::Bit_grid::add_map(const std::string& name,
 			    + std::to_string(sz));
 		}
 		sz_checked = true;
-		map_.insert({name, std::move(dyn_bitset)});
-		map_[name]->reset();
+		itp = map_.insert({name, std::move(dyn_bitset)});
+		if (!itp.second) {
+			std::runtime_error("Could not add map by name: " + name);
+		}
+		itp.first->second->reset();
+		if (has_dummy()) {
+			map_.erase(map_.find(std::string{dummy_char}));
+		}
 	} else {
 		throw std::logic_error("Cannot add map, duplicate key: " + name);
 	}
+	return *(itp.first->second);
 }
 
 void aoc24::Bit_grid::combine_maps(const std::string& map_key_to_combine_into,
@@ -289,10 +312,10 @@ std::string aoc24::Bit_grid::valid_key(const std::string& n)
 
 	for (size_t i = 1; i < n.size(); ++i) {
 		char c = n[i];
-		if (!isdigit(c) && !islower(c) && c != '_') {
+		if (!isdigit(c) && !isalpha(c) && c != '_') {
 			throw std::invalid_argument("Key must start with a letter, and the "
 			                            "remaining characters may only be "
-			                            "lowercase characters, "
+			                            "characters, "
 			                            "digits or underscores");
 		}
 	}
@@ -302,16 +325,19 @@ std::string aoc24::Bit_grid::valid_key(const std::string& n)
 
 aoc24::Dyn_bitset& aoc24::Bit_grid::get_only_map() const
 {
-	if (map_.size() != 1) {
+	if (size_excl_dummy() != 1) {
 		throw std::logic_error(
 		    "Cannot get map, expected exactly one map but found "
-		    + std::to_string(map_.size()));
+		    + std::to_string(size_excl_dummy()));
 	}
 	return *(map_.begin()->second);
 }
 
 aoc24::Dyn_bitset& aoc24::Bit_grid::get_map(const std::string& key) const
 {
+	if (size_excl_dummy() == 0) {
+		throw std::logic_error("Cannot get map when none have been added");
+	}
 	auto m = map_.find(key);
 	if (m == map_.end()) {
 		throw std::logic_error("Cannot find map with key: " + key);
@@ -323,7 +349,7 @@ void aoc24::Bit_grid::check_mask_op(int row_or_col,
                                     int leading_0,
                                     int trailing_0) const
 {
-	if (map_.empty() || mask_ == nullptr) {
+	if (has_dummy() || map_.empty() || mask_ == nullptr) {
 		throw std::logic_error(
 		    "Cannot perform mask operations before at least one "
 		    "map has been added");
@@ -337,6 +363,27 @@ void aoc24::Bit_grid::check_mask_op(int row_or_col,
 		    + " and trailing_0=" + std::to_string(trailing_0)
 		    + " for the given mask of size " + std::to_string(sz));
 	}
+}
+
+bool aoc24::Bit_grid::has_dummy() const
+{
+	return (map_.find(std::string{dummy_char}) != map_.end());
+}
+
+size_t aoc24::Bit_grid::size_excl_dummy() const
+{
+	return has_dummy() ? 0 : map_.size();
+}
+
+aoc24::Dyn_bitset& aoc24::Bit_grid::add_dummy_map(Bitset_ptr dyn_bitset)
+{
+	if (!map_.empty()) {
+		throw std::logic_error("Can only add dummy map to empty Bit_grid");
+	}
+	auto dc = std::string{dummy_char};
+	auto itp = map_.insert({dc, std::move(dyn_bitset)});
+	itp.first->second->reset();
+	return *(itp.first->second);
 }
 
 aoc24::XY aoc24::Bit_grid::find_bit(const Dyn_bitset& m,

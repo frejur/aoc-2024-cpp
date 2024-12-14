@@ -11,9 +11,10 @@ namespace aoc24 {
 class Bit_grid : public Grid
 {
 public:
-	Bit_grid(size_t grid_size,
-	         const std::string& name,
-	         std::unique_ptr<Dyn_bitset> dyn_bitset);
+	using Bitset_ptr = std::unique_ptr<Dyn_bitset>;
+
+	Bit_grid(size_t grid_size, const std::string& name, Bitset_ptr dyn_bitset);
+	Bit_grid(size_t grid_size, Bitset_ptr dyn_bitset);
 
 	XY find_bit(bool bit, size_t x, size_t y) const;
 	XY find_bit(const std::string& map_key, bool bit, size_t x, size_t y) const;
@@ -37,8 +38,8 @@ public:
 	void set(aoc24::XY a, aoc24::XY b){};
 	void set(const std::string& map_key, aoc24::XY a, aoc24::XY b){};
 
-	void add_map(const std::string& name);
-	void add_map(const std::string& name, std::unique_ptr<Dyn_bitset>);
+	Dyn_bitset& add_map(const std::string& name);
+	Dyn_bitset& add_map(const std::string& name, Bitset_ptr);
 	void combine_maps(const std::string& map_key_to_combine_into,
 	                  const std::string& map_key_to_add);
 
@@ -58,9 +59,9 @@ public:
 	static constexpr int nobit = -1;
 
 protected:
-	std::unordered_map<std::string, std::unique_ptr<Dyn_bitset>> map_;
-	std::unique_ptr<Dyn_bitset> mask_;
-	mutable std::unique_ptr<Dyn_bitset> print_;
+	std::unordered_map<std::string, Bitset_ptr> map_;
+	Bitset_ptr mask_;
+	mutable Bitset_ptr print_;
 
 	int b_at(const Dyn_bitset& map,
 	         size_t x,
@@ -76,6 +77,10 @@ protected:
 
 	void check_mask_op(int row_or_col, int leading_0, int trailing_0) const;
 
+	inline bool has_dummy() const;
+	inline size_t size_excl_dummy() const;
+	Dyn_bitset& add_dummy_map(Bitset_ptr dyn_bitset);
+
 	XY find_bit(const Dyn_bitset& map, bool bit, size_t x, size_t y) const;
 	XY find_bit(const Dyn_bitset& map,
 	            bool bit,
@@ -84,6 +89,8 @@ protected:
 	            int offs_z,
 	            int offs_y) const;
 	void print(const Dyn_bitset& map, std::ostream& ostr = std::cout) const;
+
+	static constexpr char dummy_char = '_';
 };
 
 } // namespace aoc24
