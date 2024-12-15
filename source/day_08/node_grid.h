@@ -23,7 +23,7 @@ public:
 	               const std::string& map_key,
 	               const bool bit = true);
 
-	void mark_antinodes();
+	void mark_antinodes(bool use_resonant_harmonics = false);
 	int number_of_antinode_tiles() const;
 
 	// Keys
@@ -54,7 +54,8 @@ private:
 	                                const std::vector<aoc24::XY> xy_v) const;
 	void mark_anod(char frequency,
 	               const aoc24::XY& atna_a,
-	               const aoc24::XY& atna_b);
+	               const aoc24::XY& atna_b,
+	               bool use_resonant_harmonics = false);
 
 	inline Distance distance(const aoc24::XY& a, const aoc24::XY& b) const;
 	aoc24::XY to_xy(int x, int y, const bool skip_check = true);

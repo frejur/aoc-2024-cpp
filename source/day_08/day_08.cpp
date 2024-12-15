@@ -1,7 +1,7 @@
-#include "day_08.h"
 #include "../lib/dynbs.h"
 #include "../lib/grid.h"
 #include "../lib/puzzle.h"
+#include "node_grid.h"
 
 //------------------------------------------------------------------------------
 
@@ -9,6 +9,7 @@ int main(int argc, char* argv[])
 try {
 	using namespace aoc24_08;
 	using aoc24::Char_grid;
+	constexpr bool Use_resonant_harmonics{true};
 
 	aoc24::Puzzle pz{8, "Resonant Collinearity", argc, argv};
 
@@ -22,11 +23,18 @@ try {
 	Char_grid chars(pz.input_file_path(), sz);
 	Node_grid grid{chars, std::move(bitset)};
 
+	// Part one
 	grid.mark_antinodes();
-
 	int p1_num_antinode_tiles{grid.number_of_antinode_tiles()};
 
+	// Part two
+	grid.mark_antinodes(Use_resonant_harmonics);
+	int p2_num_antinode_tiles_w_res_harmonics{grid.number_of_antinode_tiles()};
+
 	pz.file_answer(1, "Unique tiles with antinodes", p1_num_antinode_tiles);
+	pz.file_answer(2,
+	               "Tiles (Reson. harmonics)",
+	               p2_num_antinode_tiles_w_res_harmonics);
 	pz.print_answers();
 
 	return 0;
