@@ -40,6 +40,14 @@ aoc24::XY aoc24::Bit_grid::find_bit(bool bit,
 	return XY::oob;
 }
 
+aoc24::XY aoc24::Bit_grid::find_bit(const std::string& map_key,
+                                    bool bit,
+                                    size_t x,
+                                    size_t y) const
+{
+	return find_bit(get_map(map_key), bit, x, y);
+}
+
 aoc24::XY aoc24::Bit_grid::find_bit(
     bool bit, size_t start_x, size_t start_y, int offs_x, int offs_y) const
 {
