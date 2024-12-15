@@ -23,21 +23,7 @@ aoc24::XY aoc24::Bit_grid::find_bit(bool bit,
                                     size_t start_x,
                                     size_t start_y) const
 {
-	auto& m = get_only_map();
-
-	size_t total_sz{sz * sz};
-	if ((bit && m.count() == 0) || (!bit && m.count() == total_sz)
-	    || !valid_xy(start_x, start_y)) {
-		return XY::oob;
-	}
-
-	size_t start_i = total_sz - start_y * sz - start_x;
-	for (size_t i = start_i; i > 0; --i) {
-		if (m.test(i - 1) == bit) {
-			return idx_to_xy(i, true);
-		}
-	}
-	return XY::oob;
+	return find_bit(get_only_map(), bit, start_x, start_y);
 }
 
 aoc24::XY aoc24::Bit_grid::find_bit(const std::string& map_key,
@@ -405,9 +391,9 @@ aoc24::XY aoc24::Bit_grid::find_bit(const Dyn_bitset& m,
 		return XY::oob;
 	}
 
-	size_t start_i = total_sz - start_y * sz - start_x;
-	for (size_t i = start_i; i > 0; --i) {
-		if (m.test(i - 1) == bit) {
+	size_t start_i = xy_to_idx(start_x, start_y);
+	for (size_t i = start_i; i < total_sz; ++i) {
+		if (m.test(i) == bit) {
 			return idx_to_xy(i, true);
 		}
 	}
