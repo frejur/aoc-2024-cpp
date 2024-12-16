@@ -49,6 +49,9 @@ aoc24_09::Disk::Disk(std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset,
     : block_(std::move(dyn_bitset))
     , dummy_file(File::noid)
 {
+	block_->reset();
+	backup_ = block_->new_copy();
+
 	size_t pos = 0;
 	for (const auto& i : instructions) {
 		if (i.in_use) {
@@ -66,25 +69,33 @@ aoc24_09::Disk::Disk(std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset,
 
 void aoc24_09::Disk::compact()
 {
+	size_t start = 0;
 	while (true) {
 		std::pair<File&, size_t> last_fpair = last_in_use();
 		File& file = last_fpair.first;
 		size_t last = (file.id != File::noid)
 		                  ? file.block_adr[last_fpair.second]
 		                  : nopos;
-		size_t first = first_free();
+		size_t first = first_free(start);
 
 		if (last == nopos || first == nopos || last <= first) {
 			break;
 		}
 
 		swap_w_free_block(file, last_fpair.second, first);
+		start = first + 1;
 	}
 }
 
 void aoc24_09::Disk::print(std::ostream& oss)
 {
-	oss << block_->to_string() << '\n';
+	std::string m = std::string(block_->size(), '.');
+	for (const File& f : file_) {
+		for (int i : f.block_adr) {
+			m[i] = '0' + f.id;
+		}
+	}
+	oss << m << '\n';
 }
 
 long long aoc24_09::Disk::checksum() const

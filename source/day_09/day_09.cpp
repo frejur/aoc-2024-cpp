@@ -28,11 +28,18 @@ try {
 	                  : aoc24::Bitset_factory::create<num_bl_inp>();
 
 	Disk disk{std::move(blocks), instr};
+	disk.backup();
 	disk.compact();
 
 	long long p1_checksum{disk.checksum()};
-
 	pz.file_answer(1, "Compact checksum", p1_checksum);
+
+	disk.restore();
+	disk.defrag();
+
+	long long p2_checksum{disk.checksum()};
+	pz.file_answer(2, "Defrag checksum", p2_checksum);
+
 	pz.print_answers();
 
 	return 0;

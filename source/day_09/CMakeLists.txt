@@ -6,6 +6,7 @@ set(T_THIS "aoc_2024_day_${day_number}")
 add_executable(${T_THIS}
     day_09.h day_09.cpp
     part_01.cpp
+    part_02.cpp
     
     ../lib/dynbs.h
     ../lib/puzzle.h
