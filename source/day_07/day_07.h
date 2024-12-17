@@ -1,5 +1,5 @@
-#ifndef DAY_04_H
-#define DAY_04_H
+#ifndef DAY_07_H
+#define DAY_07_H
 #include <iostream>
 #include <vector>
 
@@ -70,4 +70,4 @@ long long merge(long long a, long long b);
 
 } // namespace aoc24_07
 
-#endif // DAY_04_H
+#endif // DAY_07_H
