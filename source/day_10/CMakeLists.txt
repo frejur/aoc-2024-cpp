@@ -4,7 +4,6 @@ message("Processing /day_${day_number}...")
 set(T_THIS "aoc_2024_day_${day_number}")
 
 add_executable(${T_THIS}
-    
     day_10.cpp
     
     keys.h keys.cpp

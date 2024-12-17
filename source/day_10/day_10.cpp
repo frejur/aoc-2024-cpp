@@ -2,8 +2,6 @@
 #include "../lib/grid.h"
 #include "../lib/puzzle.h"
 #include "topo_grid.h"
-#include <fstream>
-#include <random>
 
 //------------------------------------------------------------------------------
 
@@ -12,7 +10,7 @@ try {
 	using namespace aoc24_10;
 	using aoc24::Char_grid;
 
-	aoc24::Puzzle pz{10, "Hoof it", argc, argv};
+	aoc24::Puzzle pz{10, "Hoof It", argc, argv};
 
 	constexpr size_t sz_inp{40};
 	constexpr size_t sz_test{8};
@@ -26,9 +24,10 @@ try {
 
 	grid.find_trails();
 	int p1_score{grid.combined_trailhead_score()};
+	int p2_rating{grid.combined_trailhead_rating()};
 
 	pz.file_answer(1, "Combined trailhead score", p1_score);
-
+	pz.file_answer(2, "Combined trailhead rating", p2_rating);
 	pz.print_answers();
 
 	return 0;

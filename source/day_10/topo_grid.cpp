@@ -15,6 +15,18 @@ aoc24_10::Topo_grid::Topo_grid(const aoc24::Char_grid& reference_grid,
 {
 	add_initial_maps(reference_grid);
 }
+
+//------------------------------------------------------------------------------
+
+int aoc24_10::Topo_grid::combined_trailhead_rating() const
+{
+	int rating = 0;
+	for (const auto& t : trails) {
+		rating += t.second.rating;
+	}
+	return rating;
+}
+
 //------------------------------------------------------------------------------
 
 void aoc24_10::Topo_grid::add_initial_maps(const aoc24::Char_grid& reference_grid)
@@ -96,7 +108,7 @@ void aoc24_10::Topo_grid::set_desc_x_1(const size_t x,
 	int mid_alt = reference_grid.char_at(x, y) - '0';
 	for (int i = 0; i < 4; ++i) {
 		Direction dir = static_cast<Direction>(i);
-		Offset offs = dir_to_offset(dir);
+		Vec2d offs = dir_to_offset(dir);
 		if (valid_xy(x + offs.x, y + offs.y)) {
 			int nbour_alt = reference_grid.char_at(x + offs.x, y + offs.y)
 			                - '0';
@@ -141,7 +153,7 @@ std::pair<size_t, size_t> aoc24_10::Topo_grid::prep_temp_maps(size_t head_pos)
 }
 
 void aoc24_10::Topo_grid::find_and_store_trails(
-    std::multimap<size_t, size_t>& trails)
+    std::multimap<size_t, Trail>& trails)
 {
 	if (trails.size() > 0) {
 		trails.clear();
@@ -157,25 +169,18 @@ void aoc24_10::Topo_grid::find_and_store_trails(
 
 	// Find peaks
 	for (size_t hd : hd_v) {
-		// Get peaks already found for current head
-		auto excl_r = trails.equal_range(hd);
-		std::vector<int> exclude;
-		for (auto it = excl_r.first; it != excl_r.second; ++it) {
-			exclude.push_back(static_cast<int>(it->second));
-		}
-		std::sort(exclude.begin(), exclude.end());
-
 		auto se_pair = prep_temp_maps(hd);
 		size_t start = se_pair.first;
 		size_t end = se_pair.second;
 
 		// Find peaks in range of current head
-		std::vector<size_t> pk_v{peaks_in_range(hd, start, end, exclude)};
+		std::vector<size_t> pk_v{peaks_in_range(hd, start, end)};
 
 		// Recursively try to connect trails
 		for (size_t pk : pk_v) {
-			if (connect_trail(pk, hd)) {
-				trails.insert({hd, pk});
+			int rating = connect_trail(pk, hd);
+			if (rating > 0) {
+				trails.insert({hd, Trail(hd, pk, rating)});
 			}
 		}
 	}
@@ -198,8 +203,9 @@ std::vector<size_t> aoc24_10::Topo_grid::all_heads()
 	return pos_v;
 }
 
-std::vector<size_t> aoc24_10::Topo_grid::peaks_in_range(
-    size_t pos, size_t start, size_t end, const std::vector<int>& exclude_v)
+std::vector<size_t> aoc24_10::Topo_grid::peaks_in_range(size_t pos,
+                                                        size_t start,
+                                                        size_t end)
 {
 	auto& m = get_map(peak_key() + temp_suffix());
 
@@ -209,20 +215,7 @@ std::vector<size_t> aoc24_10::Topo_grid::peaks_in_range(
 
 	// Store peaks in vector
 	std::vector<size_t> pk_v;
-	auto excl = exclude_v.begin();
 	for (int pos = static_cast<int>(start); pos <= end; ++pos) {
-		// Check if peak should be excluded
-		if (!exclude_v.empty()) {
-			while (*excl < pos) {
-				++excl;
-			}
-			if (*excl == pos) {
-				++excl;
-				continue;
-			}
-		}
-
-		// Add peak
 		if (m.test(pos)) {
 			pk_v.push_back(pos);
 		}
@@ -231,55 +224,55 @@ std::vector<size_t> aoc24_10::Topo_grid::peaks_in_range(
 	return pk_v;
 }
 
-bool aoc24_10::Topo_grid::connect_trail(size_t current_pos,
-                                        size_t head_pos,
-                                        Direction dir,
-                                        size_t step)
+int aoc24_10::Topo_grid::connect_trail(size_t current_pos,
+                                       size_t head_pos,
+                                       Direction dir,
+                                       size_t step,
+                                       std::string history)
 {
-	// DEBUG
-	if (current_pos == 6) {
-		int test = 0;
-	}
-	if (step >= 9 || current_pos == head_pos) {
-		return step == 9;
+	if (step == 9 && current_pos == head_pos) {
+		return 1;
 	}
 
-	Distance dist = distance(idx_to_xy(current_pos), idx_to_xy(head_pos));
+	Vec2d dist = distance(idx_to_xy(current_pos), idx_to_xy(head_pos));
 	if (dist.x + dist.y > (9 - step)) {
-		return false;
+		return 0;
 	}
 
+	int sum = 0;
 	if (dir != Direction::Down && current_pos >= sz
 	    && up_map_temp->test(current_pos)) {
-		if (connect_trail(current_pos - sz, head_pos, Direction::Up, step + 1)) {
-			return true;
-		}
+		sum += (connect_trail(current_pos - sz,
+		                      head_pos,
+		                      Direction::Up,
+		                      step + 1,
+		                      history));
 	}
-	if (dir != Direction::Left && current_pos < sz * sz
+	if (dir != Direction::Left && ((current_pos % sz) != (sz - 1))
 	    && ri_map_temp->test(current_pos)) {
-		if (connect_trail(current_pos + 1,
-		                  head_pos,
-		                  Direction::Right,
-		                  step + 1)) {
-			return true;
-		}
+		sum += (connect_trail(current_pos + 1,
+		                      head_pos,
+		                      Direction::Right,
+		                      step + 1,
+		                      history));
 	}
 	if (dir != Direction::Up && current_pos < sz * (sz - 1)
 	    && do_map_temp->test(current_pos)) {
-		if (connect_trail(current_pos + sz,
-		                  head_pos,
-		                  Direction::Down,
-		                  step + 1)) {
-			return true;
-		}
+		sum += (connect_trail(current_pos + sz,
+		                      head_pos,
+		                      Direction::Down,
+		                      step + 1,
+		                      history));
 	}
-	if (dir != Direction::Right && current_pos > 0
+	if (dir != Direction::Right && ((current_pos) % sz != 0)
 	    && le_map_temp->test(current_pos)) {
-		if (connect_trail(current_pos - 1, head_pos, Direction::Left, step + 1)) {
-			return true;
-		}
+		sum += (connect_trail(current_pos - 1,
+		                      head_pos,
+		                      Direction::Left,
+		                      step + 1,
+		                      history));
 	}
-	return false;
+	return sum;
 }
 
 //------------------------------------------------------------------------------
@@ -345,13 +338,12 @@ std::pair<size_t, size_t> aoc24_10::Topo_grid::gen_trail_mask(const size_t x,
 
 void aoc24_10::Topo_grid::find_trails()
 {
-	find_and_store_trails(head_peak_pairs);
+	find_and_store_trails(trails);
 }
-
 //------------------------------------------------------------------------------
 
-aoc24_10::Distance aoc24_10::Topo_grid::distance(const aoc24::XY& a,
-                                                 const aoc24::XY& b) const
+aoc24_10::Vec2d aoc24_10::Topo_grid::distance(const aoc24::XY& a,
+                                              const aoc24::XY& b) const
 {
 	return {std::abs(static_cast<int>(a.x) - static_cast<int>(b.x)),
 	        std::abs(static_cast<int>(a.y) - static_cast<int>(b.y))};
@@ -368,7 +360,7 @@ aoc24::XY aoc24_10::Topo_grid::to_xy(int x, int y, const bool skip_check)
 	return {static_cast<size_t>(x), static_cast<size_t>(y)};
 }
 
-aoc24_10::Offset aoc24_10::Topo_grid::dir_to_offset(const Direction dir)
+aoc24_10::Vec2d aoc24_10::Topo_grid::dir_to_offset(const Direction dir)
 {
 	switch (dir) {
 	case Direction::Up:

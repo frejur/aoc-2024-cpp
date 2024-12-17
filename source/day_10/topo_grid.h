@@ -5,9 +5,9 @@
 #include <map>
 
 namespace aoc24_10 {
-struct Distance
+struct Vec2d
 {
-	Distance(int xx, int yy)
+	Vec2d(int xx, int yy)
 	    : x(xx)
 	    , y(yy)
 	{}
@@ -15,14 +15,16 @@ struct Distance
 	int y;
 };
 
-struct Offset
+struct Trail
 {
-	Offset(int xx, int yy)
-	    : x(xx)
-	    , y(yy)
+	Trail(size_t hd_pos, size_t pk_pos, int r)
+	    : head_pos(hd_pos)
+	    , peak_pos(pk_pos)
+	    , rating(r)
 	{}
-	int x;
-	int y;
+	size_t head_pos;
+	size_t peak_pos;
+	int rating;
 };
 
 class Topo_grid : public aoc24::Bit_grid
@@ -38,7 +40,9 @@ public:
 	enum class Direction { No_direction = -1, Up = 0, Down, Right, Left };
 
 	void find_trails();
-	int combined_trailhead_score() const { return head_peak_pairs.size(); };
+	int combined_trailhead_score() const { return trails.size(); };
+	int combined_trailhead_rating() const;
+	;
 
 	// Keys
 	using Con_str = const std::string;
@@ -54,7 +58,7 @@ public:
 
 private:
 	bool init_desc_x_1_maps;
-	std::multimap<size_t, size_t> head_peak_pairs;
+	std::multimap<size_t, Trail> trails;
 
 	void add_initial_maps(const aoc24::Char_grid& reference_grid);
 
@@ -80,16 +84,14 @@ private:
 	std::pair<size_t, size_t> prep_temp_maps(size_t head_pos);
 
 	// Find trails
-	void find_and_store_trails(std::multimap<size_t, size_t>& trails);
+	void find_and_store_trails(std::multimap<size_t, Trail>& trails);
 	std::vector<size_t> all_heads();
-	std::vector<size_t> peaks_in_range(size_t pos,
-	                                   size_t start,
-	                                   size_t end,
-	                                   const std::vector<int>& exclude_v);
-	bool connect_trail(size_t current_pos,
-	                   size_t head_pos,
-	                   Direction dir = Direction::No_direction,
-	                   size_t step = 0);
+	std::vector<size_t> peaks_in_range(size_t pos, size_t start, size_t end);
+	int connect_trail(size_t current_pos,
+	                  size_t head_pos,
+	                  Direction dir = Direction::No_direction,
+	                  size_t step = 0,
+	                  std::string history = "");
 
 	// Draw diamond mask eminating from the center, representing the area
 	// where a valid trail peak may be located
@@ -98,9 +100,9 @@ private:
 	                                         const bool invert = false);
 
 	// Various helpers
-	inline Distance distance(const aoc24::XY& a, const aoc24::XY& b) const;
+	inline Vec2d distance(const aoc24::XY& a, const aoc24::XY& b) const;
 	aoc24::XY to_xy(int x, int y, const bool skip_check = true);
-	Offset dir_to_offset(const Direction dir);
+	Vec2d dir_to_offset(const Direction dir);
 };
 } // namespace aoc24_10
 
