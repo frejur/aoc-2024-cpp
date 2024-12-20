@@ -20,8 +20,8 @@ endfunction()
 set(TARGETS "Day 1"  "Day 2"  "Day 3"  "Day 4"  "Day 5"  "Day 6")
 set(DIRS    "day_01" "day_02" "day_03" "day_04" "day_05" "day_06")
 
-apd(TARGETS "Day 7"  "Day 8"  "Day 9"  "Day 10")
-apd(DIRS    "day_07" "day_08" "day_09" "day_10")
+apd(TARGETS "Day 7"  "Day 8"  "Day 9"  "Day 10" "Day 11")
+apd(DIRS    "day_07" "day_08" "day_09" "day_10" "day_11")
 
 # Ensure TARGETS length == DIRS length
 list(LENGTH TARGETS num_targets)
