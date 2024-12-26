@@ -23,6 +23,9 @@ set(DIRS    "day_01" "day_02" "day_03" "day_04" "day_05" "day_06")
 apd(TARGETS "Day 7"  "Day 8"  "Day 9"  "Day 10" "Day 11" "Day 12")
 apd(DIRS    "day_07" "day_08" "day_09" "day_10" "day_11" "day_12")
 
+apd(TARGETS "Day 13")
+apd(DIRS    "day_13")
+
 # Ensure TARGETS length == DIRS length
 list(LENGTH TARGETS num_targets)
 list(LENGTH DIRS num_dirs)
