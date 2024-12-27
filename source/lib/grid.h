@@ -35,9 +35,11 @@ public:
 
 protected:
 	Grid(size_t grid_size);
+	Grid(size_t grid_size_x, size_t grid_size_y);
 
 	mutable bool sz_checked;
 	const size_t sz;
+	const size_t sz_y;
 	bool valid_xy(size_t x, size_t y, bool skip_check = false) const;
 	virtual void check_size() const = 0;
 };

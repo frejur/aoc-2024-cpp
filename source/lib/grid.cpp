@@ -19,6 +19,13 @@ bool aoc24::XY::operator!=(const XY& a) const
 aoc24::Grid::Grid(size_t grid_size)
     : sz_checked(false)
     , sz(grid_size)
+    , sz_y(grid_size)
+{}
+
+aoc24::Grid::Grid(size_t grid_size_x, size_t grid_size_y)
+    : sz_checked(false)
+    , sz(grid_size_x)
+    , sz_y(grid_size_y)
 {}
 
 void aoc24::Grid::previous(XY& xy) const
@@ -46,7 +53,7 @@ void aoc24::Grid::next(XY& xy) const
 	xy.x = (xy.x == sz - 1) ? 0 : xy.x + 1;
 
 	if (xy.x == 0) {
-		if (xy.y == sz - 1) {
+		if (xy.y == sz_y - 1) {
 			xy.x = XY::oob.x;
 			xy.y = XY::oob.y;
 		} else {
@@ -64,7 +71,7 @@ bool aoc24::Grid::valid_xy(size_t x, size_t y, bool skip_check) const
 	if (skip_check) {
 		return true;
 	}
-	return ((0 <= x && x <= sz - 1) && (0 <= y && y <= sz - 1));
+	return ((0 <= x && x <= sz - 1) && (0 <= y && y <= sz_y - 1));
 }
 //------------------------------------------------------------------------------
 
