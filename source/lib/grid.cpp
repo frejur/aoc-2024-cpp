@@ -2,6 +2,25 @@
 #include "extract.h"
 #include <algorithm>
 #include <stdexcept>
+//------------------------------------------------------------------------------
+
+namespace {
+const std::vector<std::string>& valid_grid_text(
+    const std::vector<std::string>& text, size_t grid_size)
+{
+	if (text.size() != grid_size) {
+		throw std::invalid_argument("Invalid grid text: row count");
+	}
+	for (const auto& s : text) {
+		if (s.size() != grid_size) {
+			throw std::invalid_argument("Invalid grid text: row width");
+		}
+	}
+	return text;
+}
+} // namespace
+
+//------------------------------------------------------------------------------
 
 const aoc24::XY aoc24::XY::oob = {XY::noxy, XY::noxy};
 
@@ -88,6 +107,12 @@ aoc24::Char_grid::Char_grid(char c, size_t grid_size)
 aoc24::Char_grid::Char_grid(const std::string& file_path, size_t grid_size)
     : Grid(grid_size)
     , g_(read_input_into_grid(file_path, grid_size))
+{}
+
+aoc24::Char_grid::Char_grid(const std::vector<std::string>& text,
+                            size_t grid_size)
+    : Grid(grid_size)
+    , g_(valid_grid_text(text, grid_size))
 {}
 
 char aoc24::Char_grid::char_at(size_t x, size_t y) const

@@ -51,6 +51,7 @@ class Char_grid : public Grid
 public:
 	Char_grid(char c, size_t grid_size);
 	Char_grid(const std::string& file_path, size_t grid_size);
+	Char_grid(const std::vector<std::string>& text, size_t grid_size);
 	char char_at(size_t x, size_t y) const;
 	XY find_char(char c, size_t start_x, size_t start_y) const;
 	XY find_char(
