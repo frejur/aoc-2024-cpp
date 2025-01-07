@@ -6,6 +6,7 @@ set(T_THIS "aoc_2024_day_${day_number}")
 add_executable(${T_THIS}
     day_14.cpp
     robo_grid.h robo_grid.cpp
+    manacher.cpp
     
     ../lib/puzzle.h ../lib/puzzle.cpp
     ../lib/grid.h ../lib/grid.cpp
