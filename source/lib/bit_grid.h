@@ -13,6 +13,11 @@ class Bit_grid : public Grid
 public:
 	using Bitset_ptr = std::unique_ptr<Dyn_bitset>;
 
+	Bit_grid(size_t grid_width,
+	         size_t grid_height,
+	         const std::string& name,
+	         Bitset_ptr dyn_bitset);
+	Bit_grid(size_t grid_width, size_t grid_height, Bitset_ptr dyn_bitset);
 	Bit_grid(size_t grid_size, const std::string& name, Bitset_ptr dyn_bitset);
 	Bit_grid(size_t grid_size, Bitset_ptr dyn_bitset);
 
@@ -75,7 +80,12 @@ protected:
 	Dyn_bitset& get_only_map() const;
 	Dyn_bitset& get_map(const std::string& key) const;
 
-	void check_mask_op(int row_or_col, int leading_0, int trailing_0) const;
+	void check_mask_op(int row_or_col,
+	                   int leading_0,
+	                   int trailing_0,
+	                   int max) const;
+	void check_mask_op_col(int col, int leading_0, int trailing_0) const;
+	void check_mask_op_row(int row, int leading_0, int trailing_0) const;
 
 	inline bool has_dummy() const;
 	inline size_t size_excl_dummy() const;

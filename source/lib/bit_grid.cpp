@@ -1,23 +1,37 @@
 #include "bit_grid.h"
-#include <sstream>
 
-aoc24::Bit_grid::Bit_grid(size_t grid_size,
+aoc24::Bit_grid::Bit_grid(size_t grid_width,
+                          size_t grid_height,
                           const std::string& name,
                           Bitset_ptr dyn_bitset)
-    : Grid(grid_size)
+    : Grid(grid_width, grid_height)
 {
 	Dyn_bitset& m = add_map(name, std::move(dyn_bitset));
 	mask_ = m.new_reset_copy();
 	print_ = m.new_reset_copy();
 }
 
-aoc24::Bit_grid::Bit_grid(size_t grid_size, Bitset_ptr dyn_bitset)
-    : Grid(grid_size)
+aoc24::Bit_grid::Bit_grid(size_t grid_width,
+                          size_t grid_height,
+                          Bitset_ptr dyn_bitset)
+    : Grid(grid_width, grid_height)
 {
 	Dyn_bitset& m = add_dummy_map(std::move(dyn_bitset));
 	mask_ = m.new_reset_copy();
 	print_ = m.new_reset_copy();
 }
+
+aoc24::Bit_grid::Bit_grid(size_t grid_size,
+                          const std::string& name,
+                          Bitset_ptr dyn_bitset)
+    : Bit_grid(grid_size, grid_size, name, std::move(dyn_bitset))
+{}
+
+aoc24::Bit_grid::Bit_grid(size_t grid_size, Bitset_ptr dyn_bitset)
+    : Bit_grid(grid_size, grid_size, std::move(dyn_bitset))
+{}
+
+//------------------------------------------------------------------------------
 
 aoc24::XY aoc24::Bit_grid::find_bit(bool bit,
                                     size_t start_x,
@@ -132,11 +146,10 @@ aoc24::Dyn_bitset& aoc24::Bit_grid::add_map(const std::string& name,
 	auto itp = std::make_pair(map_.end(), false);
 	if (map_.find(valid_key(name)) == map_.end()) {
 		sz_checked = false;
-		if (sz * sz != dyn_bitset->size()) {
-			throw std::logic_error(
-			    "Cannot add map of size "
-			    + std::to_string((int) sqrt(dyn_bitset->size())) + ", expected "
-			    + std::to_string(sz));
+		if (sz * sz_y != dyn_bitset->size()) {
+			throw std::logic_error("Cannot add map of size "
+			                       + std::to_string(dyn_bitset->size())
+			                       + ", expected " + std::to_string(sz * sz_y));
 		}
 		sz_checked = true;
 		itp = map_.insert({name, std::move(dyn_bitset)});
@@ -201,7 +214,7 @@ int aoc24::Bit_grid::b_at(const Dyn_bitset& map,
 
 void aoc24::Bit_grid::mask_row(int row, int leading_0, int trailing_0)
 {
-	check_mask_op(row, leading_0, trailing_0);
+	check_mask_op_row(row, leading_0, trailing_0);
 	mask_->reset();
 	for (size_t i = 0; i < sz; ++i) {
 		mask_->set(i);
@@ -212,9 +225,9 @@ void aoc24::Bit_grid::mask_row(int row, int leading_0, int trailing_0)
 
 void aoc24::Bit_grid::mask_col(int col, int leading_0, int trailing_0)
 {
-	check_mask_op(col, leading_0, trailing_0);
+	check_mask_op_col(col, leading_0, trailing_0);
 	mask_->reset();
-	for (int i = 0; i < sz - (leading_0 + trailing_0); ++i) {
+	for (int i = 0; i < sz_y - (leading_0 + trailing_0); ++i) {
 		mask_->set((leading_0 + i) * sz + col);
 	}
 }
@@ -257,23 +270,23 @@ void aoc24::Bit_grid::apply_mask_to_all(bool subtract)
 void aoc24::Bit_grid::check_size() const
 {
 	for (const auto& map : map_) {
-		if (map.second->size() != sz) {
+		if (map.second->size() != (sz * sz_y)) {
 			throw std::runtime_error("The size of the container is "
 			                         + std::to_string(map.second->size())
 			                         + " but was expecting "
-			                         + std::to_string(sz));
+			                         + std::to_string(sz * sz_y));
 		}
 	}
 }
 
 aoc24::XY aoc24::Bit_grid::idx_to_xy(size_t idx, bool skip_check) const
 {
-	if (!skip_check && idx >= sz * sz) {
+	if (!skip_check && idx >= sz * sz_y) {
 		throw std::runtime_error("Invalid index: " + std::to_string(idx)
 		                         + ", size of grid is " + std::to_string(sz)
-		                         + "x" + std::to_string(sz));
+		                         + "x" + std::to_string(sz_y));
 	}
-	return {idx % sz, idx / sz};
+	return {idx % sz, idx / sz_y};
 }
 
 size_t aoc24::Bit_grid::xy_to_idx(int x, int y, bool skip_check) const
@@ -282,7 +295,7 @@ size_t aoc24::Bit_grid::xy_to_idx(int x, int y, bool skip_check) const
 		throw std::runtime_error("Invalid position: (" + std::to_string(x)
 		                         + ", " + std::to_string(y)
 		                         + "), size of grid is " + std::to_string(sz)
-		                         + "x" + std::to_string(sz));
+		                         + "x" + std::to_string(sz_y));
 	}
 	return y * sz + x;
 }
@@ -341,22 +354,37 @@ aoc24::Dyn_bitset& aoc24::Bit_grid::get_map(const std::string& key) const
 
 void aoc24::Bit_grid::check_mask_op(int row_or_col,
                                     int leading_0,
-                                    int trailing_0) const
+                                    int trailing_0,
+                                    int max) const
 {
 	if (has_dummy() || map_.empty() || mask_ == nullptr) {
 		throw std::logic_error(
 		    "Cannot perform mask operations before at least one "
 		    "map has been added");
 	}
-	if (row_or_col < 0 || row_or_col >= sz || leading_0 < 0 || trailing_0 < 0
-	    || ((leading_0 + trailing_0) >= sz)) {
+	if (row_or_col < 0 || row_or_col >= max || leading_0 < 0 || trailing_0 < 0
+	    || ((leading_0 + trailing_0) >= max)) {
 		throw std::invalid_argument(
 		    "Cannot perform mask operation on row/col "
-		    + std::to_string(row_or_col)
-		    + " with leading_0=" + std::to_string(leading_0)
-		    + " and trailing_0=" + std::to_string(trailing_0)
-		    + " for the given mask of size " + std::to_string(sz));
+		    + std::to_string(row_or_col) + " with leading_0="
+		    + std::to_string(leading_0) + " and trailing_0="
+		    + std::to_string(trailing_0) + " for the given mask of size "
+		    + std::to_string(sz) + "x" + std::to_string(sz_y));
 	}
+}
+
+void aoc24::Bit_grid::check_mask_op_col(int col,
+                                        int leading_0,
+                                        int trailing_0) const
+{
+	check_mask_op(col, leading_0, trailing_0, sz);
+}
+
+void aoc24::Bit_grid::check_mask_op_row(int row,
+                                        int leading_0,
+                                        int trailing_0) const
+{
+	check_mask_op(row, leading_0, trailing_0, sz_y);
 }
 
 bool aoc24::Bit_grid::has_dummy() const
@@ -385,7 +413,7 @@ aoc24::XY aoc24::Bit_grid::find_bit(const Dyn_bitset& m,
                                     size_t start_x,
                                     size_t start_y) const
 {
-	size_t total_sz{sz * sz};
+	size_t total_sz{sz * sz_y};
 	if ((bit && m.count() == 0) || (!bit && m.count() == total_sz)
 	    || !valid_xy(start_x, start_y)) {
 		return XY::oob;
@@ -407,7 +435,7 @@ aoc24::XY aoc24::Bit_grid::find_bit(const Dyn_bitset& m,
                                     int offs_x,
                                     int offs_y) const
 {
-	size_t total_sz{sz * sz};
+	size_t total_sz{sz * sz_y};
 	if ((bit && m.count() == 0) || (!bit && m.count() == total_sz)
 	    || !valid_xy(start_x, start_y)) {
 		return XY::oob;
@@ -430,7 +458,7 @@ aoc24::XY aoc24::Bit_grid::find_bit(const Dyn_bitset& m,
 void aoc24::Bit_grid::print(const Dyn_bitset& map, std::ostream& ostr) const
 {
 	size_t i = 0;
-	for (size_t y = 0; y < sz; ++y) {
+	for (size_t y = 0; y < sz_y; ++y) {
 		for (size_t x = 0; x < sz; ++x) {
 			ostr << (x == 0 ? "" : " ") << (map.test(i) ? '1' : '0');
 			++i;
