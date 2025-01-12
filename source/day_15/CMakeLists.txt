@@ -5,8 +5,7 @@ set(T_THIS "aoc_2024_day_${day_number}")
 
 add_executable(${T_THIS}
     day_15.cpp day_15.h
-    
-    read.h read.cpp
+    read.cpp
     box_grid.h box_grid.cpp
     
     ../lib/puzzle.h
