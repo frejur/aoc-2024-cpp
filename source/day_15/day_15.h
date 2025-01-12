@@ -1,13 +1,13 @@
 #ifndef DAY_15_H
 #define DAY_15_H
-#include "box_grid.h"
+#include "box_grid_single.h"
 #include <queue>
 
 namespace aoc24_15 {
 long long move_robot_and_get_sum_of_coordinates(
     Box_grid& grid,
     std::queue<Direction> moves,
-    bool debug = false,
+    bool enable_debug = false,
     const std::string debug_output_filename = "");
 
 void read_grid_and_moves_from_file(const std::string& file_path,

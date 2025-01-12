@@ -1,7 +1,6 @@
 #ifndef BOX_GRID_H
 #define BOX_GRID_H
 #include "../lib/bit_grid.h"
-#include <list>
 
 namespace aoc24_15 {
 struct Vec2d
@@ -46,19 +45,13 @@ class Box;
 
 struct Adjacent_tile
 {
-	Adjacent_tile()
-	    : type(Type::Empty)
-	    , box(nullptr)
-	{}
-	enum class Type { Empty, Wall, Box_stuck, Box_movable };
-	Type type;
-	Box* box;
+protected:
+	Adjacent_tile(){};
 };
 
 class Box
 {
 	friend class Box_grid;
-	enum Create { Dummy };
 
 public:
 	Box(int pos_x, int pos_y)
@@ -67,6 +60,8 @@ public:
 	    , init_pos_(pos_x, pos_y)
 	    , pos_(pos_x, pos_y)
 	{}
+
+	enum Create { Dummy };
 	Box(Create)
 	    : is_dummy_(true)
 	    , marked_for_pruning_(false)
@@ -82,16 +77,11 @@ public:
 		return b;
 	}
 
-private:
+protected:
 	bool is_dummy_;
 	bool marked_for_pruning_;
 	Vec2d init_pos_;
 	Vec2d pos_;
-
-	Adjacent_tile adj_U;
-	Adjacent_tile adj_R;
-	Adjacent_tile adj_D;
-	Adjacent_tile adj_L;
 };
 
 class Is_stuck
@@ -146,51 +136,57 @@ public:
 class Box_grid : public aoc24::Bit_grid
 {
 public:
-	Box_grid(const aoc24::Char_grid& reference_grid,
-	         std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset);
 	static constexpr size_t nopos = -1;
-	void move_robot(Direction dir);
-	void print_map(std::ostream& ostr = std::cout);
 	int number_of_moves() const { return num_moves_; }
-	bool boxes_match_maps();
-	long long sum_of_all_box_coordinates() const;
 
-private:
+	virtual void move_robot(Direction dir) = 0;
+	virtual void print_map(std::ostream& ostr = std::cout) = 0;
+	virtual bool boxes_match_maps() = 0;
+	virtual long long sum_of_all_box_coordinates() const = 0;
+
+protected:
+	Box_grid(std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset);
+
 	bool map_ptr_init_;
 	int num_moves_;
-	aoc24::Dyn_bitset* walls_;
-	aoc24::Dyn_bitset* movable_;
-	aoc24::Dyn_bitset* stuck_;
 	Robot rob_;
-	std::list<Box> box_;
+	Box box_dummy_;
 
-	// Maps
-	void init_maps();
-	aoc24::Dyn_bitset& walls_map() const;
-	aoc24::Dyn_bitset& movable_map() const;
-	aoc24::Dyn_bitset& stuck_map() const;
+	virtual void init_maps() = 0;
 
 	// Boxes
-	Box box_dummy_;
-	void add_box(int pos_x, int pos_y);
-	Box& find_box(int pos_x, int pos_y, bool skip_check_position = false);
-	Adjacent_tile& adj_from_dir(Box& box, Direction dir, bool invert = false);
-	void update_adj(Box& box, Direction dir);
-	void link_adj_boxes(Box& box_a, Box& box_b, Direction from_a_to_b);
-	void prune_boxes();
-	void mark_as_stuck(Box& b);
-	bool adj_is_on_stuck_map(const Box& b, Direction dir) const;
-	Is_stuck is_stuck(const Box& b) const;
+	virtual void add_box(int pos_x, int pos_y) = 0;
+	virtual Box& find_box(int pos_x, int pos_y, bool skip_check_position = false)
+	    = 0;
+
+	// Adjacent tiles
+	virtual Adjacent_tile& adj_from_dir(Box& box,
+	                                    Direction dir,
+	                                    bool invert = false)
+	    = 0;
+	virtual void update_adj(Box& box, Direction dir) = 0;
+	virtual void link_adj_boxes(Box& box_a, Box& box_b, Direction from_a_to_b)
+	    = 0;
+
+	// Stuck boxes
+	virtual void prune_boxes() = 0;
+	virtual void mark_as_stuck(Box& b) = 0;
+	virtual bool adj_is_on_stuck_map(const Box& b, Direction dir) const = 0;
+	virtual Is_stuck is_stuck(const Box& b) const = 0;
 
 	// Robot
-	std::vector<Box*> movable_boxes_in_dir(int pos_x, int pos_y, Direction dir);
+	virtual std::vector<Box*> movable_boxes_in_dir(int pos_x,
+	                                               int pos_y,
+	                                               Direction dir)
+	    = 0;
 
 	// Misc. helpers
 	Direction dir_turn_left(const Direction dir) const;
 	Direction dir_turn_right(const Direction dir) const;
-	void throw_if_no_map() const;
-	void throw_if_occupied(size_t pos) const;
 	aoc24::XY to_xy(int x, int y, const bool skip_check = true);
+
+	virtual void throw_if_no_map() const = 0;
+	virtual void throw_if_occupied(size_t pos) const = 0;
 };
 } // namespace aoc24_15
 

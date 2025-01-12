@@ -13,6 +13,11 @@ const std::string& debug_output_filename_p1()
 	static const std::string p{"aoc24_15_p_1_debug.txt"};
 	return p;
 }
+const std::string& debug_output_filename_p2()
+{
+	static const std::string p{"aoc24_15_p_2_debug.txt"};
+	return p;
+}
 } // namespace
 
 //------------------------------------------------------------------------------
@@ -48,7 +53,7 @@ try {
 
 	// Part one
 	Char_grid char_grid(chars, sz);
-	Box_grid grid{char_grid, std::move(bitset)};
+	Box_grid_single grid{char_grid, std::move(bitset)};
 
 	long long p1_coord_sum{
 	    move_robot_and_get_sum_of_coordinates(grid,
@@ -56,6 +61,7 @@ try {
 	                                          enable_debug,
 	                                          debug_output_filename_p1())};
 	pz.file_answer(1, "Sum of coordinates", p1_coord_sum);
+	// pz.file_answer(1, "Skip part one for now", 0);
 	pz.print_answers();
 
 	return 0;
@@ -72,11 +78,11 @@ try {
 long long aoc24_15::move_robot_and_get_sum_of_coordinates(
     Box_grid& grid,
     std::queue<Direction> moves,
-    bool debug,
+    bool enable_debug,
     const std::string debug_output_filename)
 {
 	std::unique_ptr<std::ofstream> ofs;
-	if (debug) {
+	if (enable_debug) {
 		ofs.reset(new std::ofstream(debug_output_filename));
 		if (!(*ofs)) {
 			throw std::ios_base::failure("Could not open sample input file: ");
@@ -91,7 +97,7 @@ long long aoc24_15::move_robot_and_get_sum_of_coordinates(
 		grid.move_robot(m);
 		moves.pop();
 
-		if (debug) {
+		if (enable_debug) {
 			if (total_num_moves > 1000 && grid.number_of_moves() % 1000 != 0) {
 				continue;
 			}

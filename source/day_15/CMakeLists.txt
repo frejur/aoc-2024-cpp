@@ -7,6 +7,13 @@ add_executable(${T_THIS}
     day_15.cpp day_15.h
     read.cpp
     box_grid.h box_grid.cpp
+    keys.h keys.cpp
+    
+    # Part one
+    box_grid_single.h box_grid_single.cpp
+    
+    # Part two
+    box_grid_wide.h box_grid_wide.cpp
     
     ../lib/puzzle.h
     ../lib/puzzle.cpp
