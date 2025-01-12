@@ -1,7 +1,7 @@
 #ifndef BOX_GRID_H
 #define BOX_GRID_H
 #include "../lib/bit_grid.h"
-#include <deque>
+#include <list>
 
 namespace aoc24_15 {
 struct Vec2d
