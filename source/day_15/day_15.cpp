@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace {
-constexpr bool enable_debug{true};
+constexpr bool enable_debug{false};
 constexpr bool use_smaller_test_sample{false};
 const std::string& debug_output_filename_p1()
 {
@@ -30,12 +30,15 @@ try {
 	aoc24::Puzzle pz{15, "Warehouse Woes", argc, argv};
 
 	// Determine size of grid input
-	constexpr size_t sz_inp = use_smaller_test_sample ? 8 : 50;
-	constexpr size_t sz_test{10};
+	constexpr size_t sz_test = use_smaller_test_sample ? 8 : 10;
+	constexpr size_t sz_inp{50};
 	const size_t sz = (pz.is_testing() ? sz_test : sz_inp);
-	auto bitset = (pz.is_testing())
-	                  ? aoc24::Bitset_factory::create<sz_test * sz_test>()
-	                  : aoc24::Bitset_factory::create<sz_inp * sz_inp>();
+	auto bitset_p1 = (pz.is_testing())
+	                     ? aoc24::Bitset_factory::create<sz_test * sz_test>()
+	                     : aoc24::Bitset_factory::create<sz_inp * sz_inp>();
+	auto bitset_p2 = (pz.is_testing())
+	                     ? aoc24::Bitset_factory::create<sz_test * sz_test * 2>()
+	                     : aoc24::Bitset_factory::create<sz_inp * sz_inp * 2>();
 
 	// Determine number of input moves
 	constexpr size_t num_moves_inp{20000};
@@ -51,17 +54,25 @@ try {
 	                              sz,
 	                              num_moves);
 
-	// Part one
 	Char_grid char_grid(chars, sz);
-	Box_grid_single grid{char_grid, std::move(bitset)};
+
+	// Part one
+	Box_grid_single grid_p1{char_grid, std::move(bitset_p1)};
 
 	long long p1_coord_sum{
-	    move_robot_and_get_sum_of_coordinates(grid,
+	    move_robot_and_get_sum_of_coordinates(grid_p1,
 	                                          moves,
 	                                          enable_debug,
 	                                          debug_output_filename_p1())};
 	pz.file_answer(1, "Sum of coordinates", p1_coord_sum);
-	// pz.file_answer(1, "Skip part one for now", 0);
+
+	Box_grid_wide grid_p2{char_grid, std::move(bitset_p2)};
+	long long p2_coord_sum{
+	    move_robot_and_get_sum_of_coordinates(grid_p2,
+	                                          moves,
+	                                          enable_debug,
+	                                          debug_output_filename_p2())};
+	pz.file_answer(2, "Sum of scaled up warehouse", p2_coord_sum);
 	pz.print_answers();
 
 	return 0;

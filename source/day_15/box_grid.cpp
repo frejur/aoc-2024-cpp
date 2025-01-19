@@ -41,6 +41,15 @@ aoc24_15::Box_grid::Box_grid(std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset)
     , box_dummy_(Box::dummy())
 {}
 
+aoc24_15::Box_grid::Box_grid(size_t width,
+                             size_t height,
+                             std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset)
+    : Bit_grid(width, height, std::move(dyn_bitset))
+    , map_ptr_init_(false)
+    , num_moves_(0)
+    , box_dummy_(Box::dummy())
+{}
+
 //------------------------------------------------------------------------------
 
 aoc24::XY aoc24_15::Box_grid::to_xy(int x, int y, const bool skip_check)
@@ -62,6 +71,28 @@ aoc24_15::Direction aoc24_15::Box_grid::dir_turn_left(const Direction dir) const
 aoc24_15::Direction aoc24_15::Box_grid::dir_turn_right(const Direction dir) const
 {
 	return static_cast<Direction>((static_cast<int>(dir) + 1) % 4);
+}
+
+//------------------------------------------------------------------------------
+
+bool aoc24_15::Box_grid::has_cached_l(const aoc24_15::Vec2d& pos,
+                                      const std::set<aoc24_15::Vec2d> cache)
+{
+	return (cache.find({pos.x - 1, pos.y}) != cache.end());
+};
+
+bool aoc24_15::Box_grid::has_cached_u(const aoc24_15::Vec2d& pos,
+                                      const std::set<aoc24_15::Vec2d> cache)
+{
+	return (cache.find({pos.x, pos.y - 1}) != cache.end());
+};
+
+void aoc24_15::Box_grid::throw_if_no_map() const
+{
+	if (!map_ptr_init_) {
+		throw std::runtime_error(
+		    "Cannot access map: Maps have not been initialized");
+	}
 }
 
 //------------------------------------------------------------------------------

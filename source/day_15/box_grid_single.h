@@ -85,7 +85,6 @@ private:
 	                                               int pos_y,
 	                                               Direction dir) override;
 
-	virtual void throw_if_no_map() const override;
 	virtual void throw_if_occupied(size_t pos) const override;
 };
 

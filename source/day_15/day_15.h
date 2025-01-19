@@ -1,6 +1,7 @@
 #ifndef DAY_15_H
 #define DAY_15_H
 #include "box_grid_single.h"
+#include "box_grid_wide.h"
 #include <queue>
 
 namespace aoc24_15 {

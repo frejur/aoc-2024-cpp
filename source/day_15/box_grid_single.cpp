@@ -1,20 +1,7 @@
 #include "box_grid_single.h"
 #include "keys.h"
-#include <set>
 
 namespace {
-
-bool has_cached_l(const aoc24_15::Vec2d& pos,
-                  const std::set<aoc24_15::Vec2d> cache)
-{
-	return (cache.find({pos.x - 1, pos.y}) != cache.end());
-};
-
-bool has_cached_u(const aoc24_15::Vec2d& pos,
-                  const std::set<aoc24_15::Vec2d> cache)
-{
-	return (cache.find({pos.x, pos.y - 1}) != cache.end());
-};
 
 } // namespace
 //------------------------------------------------------------------------------
@@ -310,7 +297,7 @@ void aoc24_15::Box_grid_single::add_box(int pos_x, int pos_y)
 		    "Cannot add box, its current position (" + std::to_string(pos_x)
 		    + ", " + std::to_string(pos_y) + ") is out of bounds");
 	}
-	throw_if_occupied(pos);
+	Box_grid_single::throw_if_occupied(pos);
 
 	movable_map().set(pos);
 	box_.emplace_back(Box_single(pos_x, pos_y));
@@ -525,14 +512,6 @@ std::vector<aoc24_15::Box*> aoc24_15::Box_grid_single::movable_boxes_in_dir(
 }
 
 //------------------------------------------------------------------------------
-
-void aoc24_15::Box_grid_single::throw_if_no_map() const
-{
-	if (!map_ptr_init_) {
-		throw std::runtime_error(
-		    "Cannot access map: Maps have not been initialized");
-	}
-}
 
 void aoc24_15::Box_grid_single::throw_if_occupied(size_t pos) const
 {

@@ -1,6 +1,7 @@
 #ifndef BOX_GRID_H
 #define BOX_GRID_H
 #include "../lib/bit_grid.h"
+#include <set>
 
 namespace aoc24_15 {
 struct Vec2d
@@ -146,6 +147,9 @@ public:
 
 protected:
 	Box_grid(std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset);
+	Box_grid(size_t width,
+	         size_t height,
+	         std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset);
 
 	bool map_ptr_init_;
 	int num_moves_;
@@ -184,8 +188,12 @@ protected:
 	Direction dir_turn_left(const Direction dir) const;
 	Direction dir_turn_right(const Direction dir) const;
 	aoc24::XY to_xy(int x, int y, const bool skip_check = true);
+	bool has_cached_l(const aoc24_15::Vec2d& pos,
+	                  const std::set<aoc24_15::Vec2d> cache);
+	bool has_cached_u(const aoc24_15::Vec2d& pos,
+	                  const std::set<aoc24_15::Vec2d> cache);
+	void throw_if_no_map() const;
 
-	virtual void throw_if_no_map() const = 0;
 	virtual void throw_if_occupied(size_t pos) const = 0;
 };
 } // namespace aoc24_15
