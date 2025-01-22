@@ -47,7 +47,7 @@ try {
 
 	// Read input from disk
 	std::vector<std::string> chars;
-	std::queue<Direction> moves;
+	std::queue<aoc24::Direction> moves;
 	read_grid_and_moves_from_file(pz.input_file_path(),
 	                              chars,
 	                              moves,
@@ -88,7 +88,7 @@ try {
 
 long long aoc24_15::move_robot_and_get_sum_of_coordinates(
     Box_grid& grid,
-    std::queue<Direction> moves,
+    std::queue<aoc24::Direction> moves,
     bool enable_debug,
     const std::string debug_output_filename)
 {
@@ -102,7 +102,7 @@ long long aoc24_15::move_robot_and_get_sum_of_coordinates(
 		grid.print_map(*ofs);
 	}
 
-	const int total_num_moves = moves.size();
+	const int total_num_moves = static_cast<int>(moves.size());
 	while (!moves.empty()) {
 		auto& m = moves.front();
 		grid.move_robot(m);

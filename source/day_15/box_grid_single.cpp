@@ -47,29 +47,29 @@ aoc24_15::Box_grid_single::Box_grid_single(
 	}
 
 	// Update adjacent
-	std::set<Vec2d> cache_updated;
+	std::set<aoc24::Vec2d, aoc24::Vec2d_comparator> cache_updated;
 	for (Box& b : box_) {
 		if (b.position().x > 0 && !has_cached_l(b.position(), cache_updated)) {
-			Box_grid_single::update_adj(b, Direction::Left);
+			Box_grid_single::update_adj(b, aoc24::Direction::Left);
 		}
 		if (b.position().y > 0 && !has_cached_u(b.position(), cache_updated)) {
-			Box_grid_single::update_adj(b, Direction::Up);
+			Box_grid_single::update_adj(b, aoc24::Direction::Up);
 		}
-		Box_grid_single::update_adj(b, Direction::Right);
-		Box_grid_single::update_adj(b, Direction::Down);
+		Box_grid_single::update_adj(b, aoc24::Direction::Right);
+		Box_grid_single::update_adj(b, aoc24::Direction::Down);
 		cache_updated.insert(b.position());
 	}
 
 	Box_grid_single::prune_boxes();
 }
 
-void aoc24_15::Box_grid_single::move_robot(Direction dir)
+void aoc24_15::Box_grid_single::move_robot(aoc24::Direction dir)
 {
 	++num_moves_;
 
-	Vec2d offs = dir_to_offset(dir);
-	Vec2d start_xy = rob_.position();
-	Vec2d adj_xy = {start_xy.x + offs.x, start_xy.y + offs.y};
+	aoc24::Vec2d offs = dir_to_offset(dir);
+	aoc24::Vec2d start_xy = rob_.position();
+	aoc24::Vec2d adj_xy = {start_xy.x + offs.x, start_xy.y + offs.y};
 	if (is_oob(adj_xy.x, adj_xy.y)) {
 		return;
 	}
@@ -78,8 +78,8 @@ void aoc24_15::Box_grid_single::move_robot(Direction dir)
 	if (walls_map().test(adj_pos) || stuck_map().test(adj_pos)) {
 		return;
 	} else if (movable_map().test(adj_pos)) {
-		Direction dir_l = dir_turn_left(dir);
-		Direction dir_r = dir_turn_right(dir);
+		aoc24::Direction dir_l = dir_turn_left(dir);
+		aoc24::Direction dir_r = dir_turn_right(dir);
 
 		auto box_ptr_v = movable_boxes_in_dir(start_xy.x, start_xy.y, dir);
 		bool move_boxes = box_ptr_v.size() > 0;
@@ -98,8 +98,8 @@ void aoc24_15::Box_grid_single::move_robot(Direction dir)
 
 		if (move_boxes) {
 			// Clear link of boxes adj. to the now empty tile
-			Vec2d offs_l = dir_to_offset(dir_l);
-			Vec2d offs_r = dir_to_offset(dir_r);
+			aoc24::Vec2d offs_l = dir_to_offset(dir_l);
+			aoc24::Vec2d offs_r = dir_to_offset(dir_r);
 			auto& start_box_l = find_box(adj_xy.x + offs_l.x,
 			                             adj_xy.y + offs_l.y);
 			if (!start_box_l.is_dummy()) {
@@ -122,8 +122,8 @@ void aoc24_15::Box_grid_single::move_robot(Direction dir)
 			// Update maps
 			movable_map().reset(adj_pos);
 			int num_boxes = static_cast<int>(box_ptr_v.size());
-			Vec2d end_xy = {adj_xy.x + offs.x * num_boxes,
-			                adj_xy.y + offs.y * num_boxes};
+			aoc24::Vec2d end_xy = {adj_xy.x + offs.x * num_boxes,
+			                       adj_xy.y + offs.y * num_boxes};
 			movable_map().set(end_xy.y * size() + end_xy.x);
 
 			// Prune if the box at the end may have gotten stuck
@@ -210,27 +210,28 @@ bool aoc24_15::Box_grid_single::boxes_match_maps()
 {
 	for (auto& b : box_) {
 		for (int i = 0; i < 4; ++i) {
-			Vec2d offs = dir_to_offset(static_cast<Direction>(i));
-			Vec2d adj_xy = {b.position().x + offs.x, b.position().y + offs.y};
+			aoc24::Vec2d offs = dir_to_offset(static_cast<aoc24::Direction>(i));
+			aoc24::Vec2d adj_xy = {b.position().x + offs.x,
+			                       b.position().y + offs.y};
 			size_t adj_pos = adj_xy.y * size() + adj_xy.x;
 			const auto adj_t = static_cast<Adjacent_tile_single&>(
-			    adj_from_dir(b, static_cast<Direction>(i)));
+			    adj_from_dir(b, static_cast<aoc24::Direction>(i)));
 			if (adj_t.type == Adjacent_tile_single::Type::Empty) {
 				if (!walls_map().test(adj_pos) && !movable_map().test(adj_pos)
 				    && !stuck_map().test(adj_pos)) {
 					continue;
 				}
 				std::cout << "Expected empty at position (" << adj_xy.x << ", "
-				          << adj_xy.y << "). Dir " << static_cast<Direction>(i)
-				          << '\n';
+				          << adj_xy.y << "). Dir "
+				          << static_cast<aoc24::Direction>(i) << '\n';
 			} else if (adj_t.type == Adjacent_tile_single::Type::Wall) {
 				if (walls_map().test(adj_pos) && !movable_map().test(adj_pos)
 				    && !stuck_map().test(adj_pos)) {
 					continue;
 				}
 				std::cout << "Expected wall at position (" << adj_xy.x << ", "
-				          << adj_xy.y << "). Dir " << static_cast<Direction>(i)
-				          << '\n';
+				          << adj_xy.y << "). Dir "
+				          << static_cast<aoc24::Direction>(i) << '\n';
 			} else if (adj_t.type == Adjacent_tile_single::Type::Box_movable) {
 				if (adj_t.box->position().x != adj_xy.x
 				    || adj_t.box->position().y != adj_xy.y) {
@@ -238,7 +239,7 @@ bool aoc24_15::Box_grid_single::boxes_match_maps()
 					          << ", " << adj_xy.y << ") but got position ("
 					          << adj_t.box->position().x << ", "
 					          << adj_t.box->position().y << "). Dir "
-					          << static_cast<Direction>(i) << '\n';
+					          << static_cast<aoc24::Direction>(i) << '\n';
 					return false;
 				}
 				if (!walls_map().test(adj_pos) && movable_map().test(adj_pos)
@@ -246,8 +247,8 @@ bool aoc24_15::Box_grid_single::boxes_match_maps()
 					continue;
 				}
 				std::cout << "Expected box at position (" << adj_xy.x << ", "
-				          << adj_xy.y << "). Dir " << static_cast<Direction>(i)
-				          << '\n';
+				          << adj_xy.y << "). Dir "
+				          << static_cast<aoc24::Direction>(i) << '\n';
 			} else if (adj_t.type == Adjacent_tile_single::Type::Box_stuck) {
 				if (!walls_map().test(adj_pos) && !movable_map().test(adj_pos)
 				    && stuck_map().test(adj_pos)) {
@@ -255,7 +256,7 @@ bool aoc24_15::Box_grid_single::boxes_match_maps()
 				};
 				std::cout << "Expected STUCK box at position (" << adj_xy.x
 				          << ", " << adj_xy.y << "). Dir "
-				          << static_cast<Direction>(i) << '\n';
+				          << static_cast<aoc24::Direction>(i) << '\n';
 			}
 			return false;
 		}
@@ -322,41 +323,41 @@ aoc24_15::Box& aoc24_15::Box_grid_single::find_box(int pos_x,
 
 //------------------------------------------------------------------------------
 
-aoc24_15::Adjacent_tile& aoc24_15::Box_grid_single::adj_from_dir(Box& box,
-                                                                 Direction dir,
-                                                                 bool invert)
+aoc24_15::Adjacent_tile& aoc24_15::Box_grid_single::adj_from_dir(
+    Box& box, aoc24::Direction dir, bool invert)
 {
 	if (invert) {
-		dir = static_cast<Direction>((static_cast<int>(dir) + 2) % 4);
+		dir = static_cast<aoc24::Direction>((static_cast<int>(dir) + 2) % 4);
 	}
 
 	auto& box_s = static_cast<Box_single&>(box);
 	Adjacent_tile_single* t = nullptr;
 	switch (dir) {
-	case Direction::Up:
+	case aoc24::Direction::Up:
 		t = &(box_s.adj_U);
 		break;
-	case Direction::Right:
+	case aoc24::Direction::Right:
 		t = &(box_s.adj_R);
 		break;
-	case Direction::Down:
+	case aoc24::Direction::Down:
 		t = &(box_s.adj_D);
 		break;
-	case Direction::Left:
+	case aoc24::Direction::Left:
 		t = &(box_s.adj_L);
 		break;
 	default:
 		throw std::invalid_argument(
-		    "Cannot convert Direction to adjacent: Unknown Directional value");
+		    "Cannot convert aoc24::Direction to adjacent: Unknown "
+		    "aoc24::Directional value");
 	}
 	return *t;
 }
 
-void aoc24_15::Box_grid_single::update_adj(Box& box, Direction dir)
+void aoc24_15::Box_grid_single::update_adj(Box& box, aoc24::Direction dir)
 {
-	Vec2d offs = dir_to_offset(dir);
+	aoc24::Vec2d offs = dir_to_offset(dir);
 	auto& box_s = static_cast<Box_single&>(box);
-	Vec2d adj_xy = {box_s.pos_.x + offs.x, box_s.pos_.y + offs.y};
+	aoc24::Vec2d adj_xy = {box_s.pos_.x + offs.x, box_s.pos_.y + offs.y};
 	if (is_oob(adj_xy.x, adj_xy.y)) {
 		return;
 	}
@@ -386,7 +387,7 @@ void aoc24_15::Box_grid_single::update_adj(Box& box, Direction dir)
 
 void aoc24_15::Box_grid_single::link_adj_boxes(Box& box_a,
                                                Box& box_b,
-                                               Direction from_a_to_b)
+                                               aoc24::Direction from_a_to_b)
 {
 	auto& adj_tile_a = static_cast<Adjacent_tile_single&>(
 	    adj_from_dir(box_a, from_a_to_b));
@@ -435,7 +436,7 @@ void aoc24_15::Box_grid_single::mark_as_stuck(Box& b)
 	stuck_map().set(box_s.pos_.y * size() + box_s.pos_.x);
 	movable_map().reset(box_s.pos_.y * size() + box_s.pos_.x);
 	for (int i = 0; i < 4; ++i) {
-		Direction adj_dir = static_cast<Direction>(i);
+		aoc24::Direction adj_dir = static_cast<aoc24::Direction>(i);
 		const auto& adj_t_a = static_cast<Adjacent_tile_single&>(
 		    adj_from_dir(box_s, adj_dir));
 		if (adj_t_a.type == AT::Box_movable) {
@@ -448,11 +449,11 @@ void aoc24_15::Box_grid_single::mark_as_stuck(Box& b)
 }
 
 bool aoc24_15::Box_grid_single::adj_is_on_stuck_map(const Box& b,
-                                                    Direction dir) const
+                                                    aoc24::Direction dir) const
 {
-	Vec2d offs = dir_to_offset(dir);
+	aoc24::Vec2d offs = dir_to_offset(dir);
 	auto& box_s = static_cast<const Box_single&>(b);
-	Vec2d adj_xy = {box_s.pos_.x + offs.x, box_s.pos_.y + offs.y};
+	aoc24::Vec2d adj_xy = {box_s.pos_.x + offs.x, box_s.pos_.y + offs.y};
 	if (is_oob(adj_xy.x, adj_xy.y)) {
 		return false;
 	}
@@ -465,23 +466,23 @@ aoc24_15::Is_stuck aoc24_15::Box_grid_single::is_stuck(const Box& b) const
 	auto& box_s = static_cast<const Box_single&>(b);
 	Is_stuck s;
 	s.up = (box_s.adj_U.type == AT::Wall || box_s.adj_U.type == AT::Box_stuck
-	        || adj_is_on_stuck_map(box_s, Direction::Up));
+	        || adj_is_on_stuck_map(box_s, aoc24::Direction::Up));
 	s.right = (box_s.adj_R.type == AT::Wall || box_s.adj_R.type == AT::Box_stuck
-	           || adj_is_on_stuck_map(box_s, Direction::Right));
+	           || adj_is_on_stuck_map(box_s, aoc24::Direction::Right));
 	s.down = (box_s.adj_D.type == AT::Wall || box_s.adj_D.type == AT::Box_stuck
-	          || adj_is_on_stuck_map(box_s, Direction::Down));
+	          || adj_is_on_stuck_map(box_s, aoc24::Direction::Down));
 	s.left = (box_s.adj_L.type == AT::Wall || box_s.adj_L.type == AT::Box_stuck
-	          || adj_is_on_stuck_map(box_s, Direction::Left));
+	          || adj_is_on_stuck_map(box_s, aoc24::Direction::Left));
 	return s;
 }
 
 //------------------------------------------------------------------------------
 
 std::vector<aoc24_15::Box*> aoc24_15::Box_grid_single::movable_boxes_in_dir(
-    int pos_x, int pos_y, Direction dir)
+    int pos_x, int pos_y, aoc24::Direction dir)
 {
-	Vec2d offs = dir_to_offset(dir);
-	Vec2d adj_pos = {pos_x + offs.x, pos_y + offs.y};
+	aoc24::Vec2d offs = dir_to_offset(dir);
+	aoc24::Vec2d adj_pos = {pos_x + offs.x, pos_y + offs.y};
 	if (is_oob(adj_pos.x, adj_pos.y)) {
 		return {};
 	}

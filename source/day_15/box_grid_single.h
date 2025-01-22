@@ -41,7 +41,7 @@ class Box_grid_single : public Box_grid
 public:
 	Box_grid_single(const aoc24::Char_grid& reference_grid,
 	                std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset);
-	virtual void move_robot(Direction dir) override;
+	virtual void move_robot(aoc24::Direction dir) override;
 	virtual void print_map(std::ostream& ostr = std::cout) override;
 	virtual bool boxes_match_maps() override;
 	virtual long long sum_of_all_box_coordinates() const override;
@@ -67,23 +67,23 @@ private:
 
 	// Adjacent tiles
 	virtual Adjacent_tile& adj_from_dir(Box& box,
-	                                    Direction dir,
+	                                    aoc24::Direction dir,
 	                                    bool invert = false) override;
-	virtual void update_adj(Box& box, Direction dir) override;
+	virtual void update_adj(Box& box, aoc24::Direction dir) override;
 	virtual void link_adj_boxes(Box& box_a,
 	                            Box& box_b,
-	                            Direction from_a_to_b) override;
+	                            aoc24::Direction from_a_to_b) override;
 
 	// Stuck boxes
 	virtual void prune_boxes() override;
 	virtual void mark_as_stuck(Box& b) override;
-	virtual bool adj_is_on_stuck_map(const Box& b, Direction dir) const override;
+	virtual bool adj_is_on_stuck_map(const Box& b,
+	                                 aoc24::Direction dir) const override;
 	virtual Is_stuck is_stuck(const Box& b) const override;
 
 	// Robot
-	virtual std::vector<Box*> movable_boxes_in_dir(int pos_x,
-	                                               int pos_y,
-	                                               Direction dir) override;
+	virtual std::vector<Box*> movable_boxes_in_dir(
+	    int pos_x, int pos_y, aoc24::Direction dir) override;
 
 	virtual void throw_if_occupied(size_t pos) const override;
 };

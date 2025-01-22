@@ -82,7 +82,7 @@ class Box_grid_wide : public Box_grid
 public:
 	Box_grid_wide(const aoc24::Char_grid& reference_grid,
 	              std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset);
-	virtual void move_robot(Direction dir) override;
+	virtual void move_robot(aoc24::Direction dir) override;
 	virtual void print_map(std::ostream& ostr = std::cout) override;
 	virtual bool boxes_match_maps() override;
 	virtual long long sum_of_all_box_coordinates() const override;
@@ -97,8 +97,8 @@ private:
 	aoc24::Dyn_bitset* stuck_R_;
 
 	aoc24::Dyn_bitset& walls_map() const;
-	aoc24::Dyn_bitset& movable_map(Direction dir) const;
-	aoc24::Dyn_bitset& stuck_map(Direction dir) const;
+	aoc24::Dyn_bitset& movable_map(aoc24::Direction dir) const;
+	aoc24::Dyn_bitset& stuck_map(aoc24::Direction dir) const;
 
 	virtual void init_maps() override;
 	bool is_on_box_map(size_t pos) const;
@@ -111,69 +111,69 @@ private:
 
 	// Adjacent tiles
 	virtual Adjacent_tile& adj_from_dir(Box& box,
-	                                    Direction dir,
+	                                    aoc24::Direction dir,
 	                                    bool invert = false) override;
-	virtual void update_adj(Box& box, Direction dir) override;
+	virtual void update_adj(Box& box, aoc24::Direction dir) override;
 	virtual void link_adj_boxes(Box& box_a,
 	                            Box& box_b,
-	                            Direction from_a_to_b) override;
+	                            aoc24::Direction from_a_to_b) override;
 	// Stuck boxes
 	virtual void prune_boxes() override;
 	virtual void mark_as_stuck(Box& b) override;
-	virtual bool adj_is_on_stuck_map(const Box& b, Direction dir) const override;
+	virtual bool adj_is_on_stuck_map(const Box& b,
+	                                 aoc24::Direction dir) const override;
 	virtual Is_stuck is_stuck(const Box& b) const override;
 
 	// Robot
-	virtual std::vector<Box*> movable_boxes_in_dir(int pos_x,
-	                                               int pos_y,
-	                                               Direction dir) override;
+	virtual std::vector<Box*> movable_boxes_in_dir(
+	    int pos_x, int pos_y, aoc24::Direction dir) override;
 
 	virtual void throw_if_occupied(size_t pos) const override;
 
 	// Validation helpers
-	bool dir_is_UD(const Direction dir) const;
-	bool dir_is_L(const Direction dir) const;
-	bool dir_is_R(const Direction dir) const;
-	bool dir_is_UDL(const Direction dir) const;
-	bool dir_is_UDR(const Direction dir) const;
+	bool dir_is_UD(const aoc24::Direction dir) const;
+	bool dir_is_L(const aoc24::Direction dir) const;
+	bool dir_is_R(const aoc24::Direction dir) const;
+	bool dir_is_UDL(const aoc24::Direction dir) const;
+	bool dir_is_UDR(const aoc24::Direction dir) const;
 	bool adj_type_is_box(Adjacent_subtile::Type t) const;
 	const aoc24::Dyn_bitset& box_map(Adjacent_subtile::Type t) const;
 	const std::string type_to_str(Adjacent_subtile::Type t) const;
 	int presence_in_maps(const size_t pos) const;
-	bool on_no_map(const Vec2d& xy, const Direction dir) const;
-	bool only_on_a_single_map(const Vec2d& pos,
-	                          const Direction dir,
+	bool on_no_map(const aoc24::Vec2d& xy, const aoc24::Direction dir) const;
+	bool only_on_a_single_map(const aoc24::Vec2d& pos,
+	                          const aoc24::Direction dir,
 	                          const aoc24::Dyn_bitset& only_map,
 	                          const std::string& expected_type) const;
-	bool adj_subtile_is_invalid_side(const Vec2d& pos,
+	bool adj_subtile_is_invalid_side(const aoc24::Vec2d& pos,
 	                                 const Adjacent_tile_wide& tile,
-	                                 const Direction dir,
+	                                 const aoc24::Direction dir,
 	                                 const bool stuck = false) const;
-	bool unused_subtile_is_unknown(const Vec2d& pos,
+	bool unused_subtile_is_unknown(const aoc24::Vec2d& pos,
 	                               const Adjacent_tile_wide& tile,
-	                               const Direction dir) const;
+	                               const aoc24::Direction dir) const;
 	Tile_validation validate_if_adj_unknown(const Adjacent_tile_wide& adj_t,
-	                                        const Vec2d& adj_xy_L,
-	                                        const Vec2d& adj_xy_R,
-	                                        const Direction dir,
+	                                        const aoc24::Vec2d& adj_xy_L,
+	                                        const aoc24::Vec2d& adj_xy_R,
+	                                        const aoc24::Direction dir,
 	                                        const bool found_left,
 	                                        const bool found_right);
 	Tile_validation validate_if_adj_empty(const Adjacent_tile_wide& adj_t,
-	                                      const Vec2d& adj_xy_L,
-	                                      const Vec2d& adj_xy_R,
-	                                      const Direction dir,
+	                                      const aoc24::Vec2d& adj_xy_L,
+	                                      const aoc24::Vec2d& adj_xy_R,
+	                                      const aoc24::Direction dir,
 	                                      const bool found_left,
 	                                      const bool found_right);
 	Tile_validation validate_if_adj_wall(const Adjacent_tile_wide& adj_t,
-	                                     const Vec2d& adj_xy_L,
-	                                     const Vec2d& adj_xy_R,
-	                                     const Direction dir,
+	                                     const aoc24::Vec2d& adj_xy_L,
+	                                     const aoc24::Vec2d& adj_xy_R,
+	                                     const aoc24::Direction dir,
 	                                     const bool found_left,
 	                                     const bool found_right);
 	Tile_validation validate_if_adj_box(const Adjacent_tile_wide& adj_t,
-	                                    const Vec2d& adj_xy_L,
-	                                    const Vec2d& adj_xy_R,
-	                                    const Direction dir,
+	                                    const aoc24::Vec2d& adj_xy_L,
+	                                    const aoc24::Vec2d& adj_xy_R,
+	                                    const aoc24::Direction dir,
 	                                    const bool found_left,
 	                                    const bool found_right);
 };

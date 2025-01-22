@@ -15,6 +15,14 @@ add_executable(${T_THIS}
     # Part two
     box_grid_wide.h box_grid_wide.cpp
     
+    # Refactor
+    warehouse.h warehouse.cpp
+    robot.h robot.cpp
+    
+    ../lib/direction.h
+    ../lib/direction.cpp
+    ../lib/vec2d.h
+    ../lib/vec2d.cpp
     ../lib/puzzle.h
     ../lib/puzzle.cpp
     ../lib/grid.h

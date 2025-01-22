@@ -1,48 +1,12 @@
 #ifndef BOX_GRID_H
 #define BOX_GRID_H
 #include "../lib/bit_grid.h"
+#include "../lib/direction.h"
+#include "../lib/vec2d.h"
+#include "robot.h"
 #include <set>
 
 namespace aoc24_15 {
-struct Vec2d
-{
-	Vec2d(int xx, int yy)
-	    : x(xx)
-	    , y(yy)
-	{}
-	int x;
-	int y;
-	bool operator<(const Vec2d& rhs) const;
-};
-enum class Direction { Up = 0, Right, Down, Left };
-std::ostream& operator<<(std::ostream& ostr, const Direction& dir);
-std::istream& operator>>(std::istream& istr, Direction& dir);
-
-Vec2d dir_to_offset(Direction dir, bool invert = false);
-//------------------------------------------------------------------------------
-
-class Robot
-{
-public:
-	Robot()
-	    : has_spawned_(false)
-	    , init_pos_(0, 0)
-	    , pos_(0, 0)
-	{}
-	void spawn(int pos_x, int pos_y);
-	void move(Direction dir);
-	Vec2d position() const { return pos_; }
-	void reset() { pos_ = init_pos_; }
-
-private:
-	bool has_spawned_;
-	Vec2d init_pos_;
-	Vec2d pos_;
-};
-
-//------------------------------------------------------------------------------
-
-class Box;
 
 struct Adjacent_tile
 {
@@ -69,7 +33,7 @@ public:
 	    , init_pos_(0, 0)
 	    , pos_(0, 0)
 	{}
-	Vec2d position() const { return pos_; }
+	aoc24::Vec2d position() const { return pos_; }
 	bool is_dummy() const { return is_dummy_; }
 
 	static Box dummy()
@@ -81,8 +45,8 @@ public:
 protected:
 	bool is_dummy_;
 	bool marked_for_pruning_;
-	Vec2d init_pos_;
-	Vec2d pos_;
+	aoc24::Vec2d init_pos_;
+	aoc24::Vec2d pos_;
 };
 
 class Is_stuck
@@ -140,7 +104,7 @@ public:
 	static constexpr size_t nopos = -1;
 	int number_of_moves() const { return num_moves_; }
 
-	virtual void move_robot(Direction dir) = 0;
+	virtual void move_robot(aoc24::Direction dir) = 0;
 	virtual void print_map(std::ostream& ostr = std::cout) = 0;
 	virtual bool boxes_match_maps() = 0;
 	virtual long long sum_of_all_box_coordinates() const = 0;
@@ -165,33 +129,36 @@ protected:
 
 	// Adjacent tiles
 	virtual Adjacent_tile& adj_from_dir(Box& box,
-	                                    Direction dir,
+	                                    aoc24::Direction dir,
 	                                    bool invert = false)
 	    = 0;
-	virtual void update_adj(Box& box, Direction dir) = 0;
-	virtual void link_adj_boxes(Box& box_a, Box& box_b, Direction from_a_to_b)
+	virtual void update_adj(Box& box, aoc24::Direction dir) = 0;
+	virtual void link_adj_boxes(Box& box_a,
+	                            Box& box_b,
+	                            aoc24::Direction from_a_to_b)
 	    = 0;
 
 	// Stuck boxes
 	virtual void prune_boxes() = 0;
 	virtual void mark_as_stuck(Box& b) = 0;
-	virtual bool adj_is_on_stuck_map(const Box& b, Direction dir) const = 0;
+	virtual bool adj_is_on_stuck_map(const Box& b, aoc24::Direction dir) const
+	    = 0;
 	virtual Is_stuck is_stuck(const Box& b) const = 0;
 
 	// Robot
 	virtual std::vector<Box*> movable_boxes_in_dir(int pos_x,
 	                                               int pos_y,
-	                                               Direction dir)
+	                                               aoc24::Direction dir)
 	    = 0;
 
 	// Misc. helpers
-	Direction dir_turn_left(const Direction dir) const;
-	Direction dir_turn_right(const Direction dir) const;
 	aoc24::XY to_xy(int x, int y, const bool skip_check = true);
-	bool has_cached_l(const aoc24_15::Vec2d& pos,
-	                  const std::set<aoc24_15::Vec2d> cache);
-	bool has_cached_u(const aoc24_15::Vec2d& pos,
-	                  const std::set<aoc24_15::Vec2d> cache);
+	bool has_cached_l(
+	    const aoc24::Vec2d& pos,
+	    const std::set<aoc24::Vec2d, aoc24::Vec2d_comparator> cache);
+	bool has_cached_u(
+	    const aoc24::Vec2d& pos,
+	    const std::set<aoc24::Vec2d, aoc24::Vec2d_comparator> cache);
 	void throw_if_no_map() const;
 
 	virtual void throw_if_occupied(size_t pos) const = 0;
