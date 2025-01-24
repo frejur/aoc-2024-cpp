@@ -30,6 +30,8 @@ public:
 	void previous(XY& xy) const;
 	void next(XY& xy) const;
 	size_t size() const { return sz; }
+	size_t widht() const { return sz; }
+	size_t height() const { return sz_y; }
 	bool is_oob(XY xy) const { return !valid_xy(xy.x, xy.y); };
 	bool is_oob(int x, int y) const { return !valid_xy(x, y); };
 
