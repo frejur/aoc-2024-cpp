@@ -18,6 +18,8 @@ struct Vec2d
 	int y;
 	bool operator==(const Vec2d& rhs) const;
 	bool operator!=(const Vec2d& rhs) const;
+	Vec2d operator+(const Vec2d& rhs) const;
+	Vec2d operator-(const Vec2d& rhs) const;
 };
 
 struct Vec2d_comparator
