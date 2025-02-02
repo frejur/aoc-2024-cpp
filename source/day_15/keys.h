@@ -9,6 +9,7 @@ constexpr char empty_ch{'.'};
 constexpr char wall_ch{'#'};
 constexpr char robot_ch{'@'};
 constexpr char box_ch{'O'};
+constexpr char box_stuck_ch{'X'};
 constexpr char box_stuck_L_ch{'>'};
 constexpr char box_stuck_R_ch{'<'};
 constexpr char box_movable_L_ch{'['};

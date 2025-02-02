@@ -9,7 +9,7 @@ void aoc24_15::Robot::spawn(int pos_x, int pos_y)
 
 void aoc24_15::Robot::move(aoc24::Direction dir)
 {
-	aoc24::Vec2d offs = dir_to_offset(dir);
+	aoc24::Vec2d offs = aoc24::dir_to_offset(dir);
 	pos_.x += offs.x;
 	pos_.y += offs.y;
 }

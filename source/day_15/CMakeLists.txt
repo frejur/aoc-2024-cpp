@@ -17,7 +17,15 @@ add_executable(${T_THIS}
     
     # Refactor
     warehouse.h warehouse.cpp
+    warehouse_col.h warehouse_col.cpp
     robot.h robot.cpp
+    box.h box.cpp
+    
+    # Refactor part one
+    s_box.h s_box.cpp
+    
+    # Refactor part two
+    r_box.h r_box.cpp
     
     ../lib/direction.h
     ../lib/direction.cpp

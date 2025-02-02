@@ -438,13 +438,13 @@ void aoc24_15::Box_grid_wide::print_map(std::ostream& ostr)
 				} else if (has_wal) {
 					c = chars::wall_ch;
 				} else if (has_mvl) {
-					c = chars::box_movable_L_ch;
+					c = chars::box_ch;
 				} else if (has_mvr) {
-					c = chars::box_movable_R_ch;
+					c = chars::box_ch;
 				} else if (has_stl) {
-					c = chars::box_stuck_L_ch;
+					c = chars::box_stuck_ch;
 				} else if (has_str) {
-					c = chars::box_stuck_R_ch;
+					c = chars::box_stuck_ch;
 				} else {
 					c = ' ';
 				}

@@ -17,6 +17,7 @@ public:
 	void move(aoc24::Direction dir);
 	aoc24::Vec2d position() const { return pos_; }
 	void reset() { pos_ = init_pos_; }
+	bool has_spawned() const { return has_spawned_; }
 
 private:
 	bool has_spawned_;
