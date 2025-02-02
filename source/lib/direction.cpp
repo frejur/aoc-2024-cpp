@@ -80,3 +80,8 @@ aoc24::Direction aoc24::dir_turn_right(const aoc24::Direction dir)
 {
 	return static_cast<aoc24::Direction>((static_cast<int>(dir) + 1) % 4);
 }
+
+aoc24::Direction aoc24::dir_inverted(const Direction dir)
+{
+	return static_cast<aoc24::Direction>((static_cast<int>(dir) + 2) % 4);
+}
