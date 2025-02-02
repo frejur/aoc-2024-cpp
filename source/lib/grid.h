@@ -52,6 +52,7 @@ class Char_grid : public Grid
 {
 public:
 	Char_grid(char c, size_t grid_size);
+	Char_grid(char c, size_t grid_width, size_t grid_height);
 	Char_grid(const std::string& file_path, size_t grid_size);
 	Char_grid(const std::vector<std::string>& text, size_t grid_size);
 	char char_at(size_t x, size_t y) const;
@@ -60,6 +61,7 @@ public:
 	    char c, size_t start_x, size_t start_y, int offs_x, int offs_y) const;
 	static const char nochar = '\0';
 	std::string unique_chars() const;
+	void set_char(size_t x, size_t y, char c);
 
 protected:
 	std::vector<std::string> g_;

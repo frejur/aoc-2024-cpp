@@ -104,6 +104,16 @@ aoc24::Char_grid::Char_grid(char c, size_t grid_size)
 	}
 }
 
+aoc24::Char_grid::Char_grid(char c, size_t grid_width, size_t grid_height)
+    : Grid(grid_width, grid_height)
+{
+	g_.reserve(grid_height);
+	std::string row = std::string(grid_width, c);
+	for (int i = 0; i < sz; ++i) {
+		g_.emplace_back(row);
+	}
+}
+
 aoc24::Char_grid::Char_grid(const std::string& file_path, size_t grid_size)
     : Grid(grid_size)
     , g_(read_input_into_grid(file_path, grid_size))
@@ -177,6 +187,17 @@ std::string aoc24::Char_grid::unique_chars() const
 	std::sort(chars.begin(), chars.end());
 	chars.erase(std::unique(chars.begin(), chars.end()), chars.end());
 	return chars;
+}
+
+void aoc24::Char_grid::set_char(size_t x, size_t y, char c)
+{
+	if (!valid_xy(x, y)) {
+		throw std::logic_error("Invalid position");
+	}
+	if (c == nochar) {
+		throw std::invalid_argument("Cannot set to reserved char");
+	}
+	g_[y][x] = c;
 }
 
 void aoc24::Char_grid::check_size() const
