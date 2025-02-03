@@ -3,6 +3,7 @@
 #include "../lib/grid.h"
 #include "../lib/puzzle.h"
 #include "grid_utils.h"
+#include "io_utils.h"
 #include "r_box.h"
 #include "s_box.h"
 #include <fstream>
@@ -162,9 +163,4 @@ long long aoc24_15::move_robot_and_get_sum_of_coordinates(
 		}
 	}
 	return grid.sum_of_all_box_coordinates();
-}
-
-std::ostream& aoc24_15::operator<<(std::ostream& ostr, aoc24::Vec2d& vec)
-{
-	return ostr << '(' << vec.x << ", " << vec.y << ')';
 }

@@ -1,4 +1,5 @@
-#include "day_15.h"
+#include "io_utils.h"
+#include "../lib/vec2d.h"
 #include <cassert>
 #include <fstream>
 
@@ -34,4 +35,10 @@ void aoc24_15::read_grid_and_moves_from_file(
 		output_moves.push(dir);
 	}
 	assert(output_moves.size() == moves_count);
+}
+
+std::ostream& aoc24_15::operator<<(
+    std::ostream& ostr, aoc24::Vec2d& vec)
+{
+	return ostr << '(' << vec.x << ", " << vec.y << ')';
 }

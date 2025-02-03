@@ -5,7 +5,7 @@ set(T_THIS "aoc_2024_day_${day_number}")
 
 add_executable(${T_THIS}
     day_15.cpp day_15.h
-    read.cpp
+    io_utils.cpp
     keys.h keys.cpp
     warehouse.h warehouse.cpp
     warehouse_col.h warehouse_col.cpp
@@ -32,6 +32,7 @@ add_executable(${T_THIS}
     ../lib/extract.h
     ../lib/extract.cpp
     grid_utils.h grid_utils.cpp
+    io_utils.h
 )
 
 # Dynamically copy the puzzle sample input into a
