@@ -6,25 +6,16 @@ set(T_THIS "aoc_2024_day_${day_number}")
 add_executable(${T_THIS}
     day_15.cpp day_15.h
     read.cpp
-    box_grid.h box_grid.cpp
     keys.h keys.cpp
-    
-    # Part one
-    box_grid_single.h box_grid_single.cpp
-    
-    # Part two
-    box_grid_wide.h box_grid_wide.cpp
-    
-    # Refactor
     warehouse.h warehouse.cpp
     warehouse_col.h warehouse_col.cpp
     robot.h robot.cpp
     box.h box.cpp
     
-    # Refactor part one
+    # Part one
     s_box.h s_box.cpp
     
-    # Refactor part two
+    # Part two
     r_box.h r_box.cpp
     
     ../lib/direction.h
