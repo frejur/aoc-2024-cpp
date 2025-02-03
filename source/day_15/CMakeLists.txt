@@ -31,6 +31,7 @@ add_executable(${T_THIS}
     ../lib/bit_grid.cpp
     ../lib/extract.h
     ../lib/extract.cpp
+    grid_utils.h grid_utils.cpp
 )
 
 # Dynamically copy the puzzle sample input into a

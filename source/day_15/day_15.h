@@ -16,11 +16,7 @@ void read_grid_and_moves_from_file(const std::string& file_path,
                                    size_t grid_size,
                                    size_t moves_count);
 
-void extract_spawn_and_box_positions(aoc24::Char_grid& grid,
-                                     aoc24::Vec2d& spawn_pos,
-                                     std::vector<aoc24::Vec2d>& box_pos_v);
 
-aoc24::Char_grid create_new_wider_grid(const aoc24::Char_grid& grid);
 
 std::ostream& operator<<(std::ostream& ostr, aoc24::Vec2d& vec);
 

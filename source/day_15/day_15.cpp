@@ -2,12 +2,11 @@
 #include "../lib/dynbs.h"
 #include "../lib/grid.h"
 #include "../lib/puzzle.h"
-#include "keys.h"
+#include "grid_utils.h"
 #include "r_box.h"
 #include "s_box.h"
 #include <fstream>
 #include <memory>
-#include <sstream>
 
 namespace {
 constexpr bool enable_debug{false};
@@ -60,6 +59,7 @@ try {
 	                              sz,
 	                              num_moves);
 
+	// Setup reference grid, extract Box and Robot positions
 	Char_grid char_grid(chars, sz);
 	Vec2d spawn_xy;
 	std::vector<Vec2d> box_xy_v;
@@ -86,12 +86,8 @@ try {
 	// Part two
 	Char_grid char_grid_wide{create_new_wider_grid(char_grid)};
 
-	auto bitset_p2_refactor
-	    = (pz.is_testing())
-	          ? aoc24::Bitset_factory::create<sz_test * sz_test * 2>()
-	          : aoc24::Bitset_factory::create<sz_inp * sz_inp * 2>();
 	Rect_box_factory rf;
-	Warehouse p2_wh{sz * 2, sz, std::move(bitset_p2_refactor), char_grid_wide};
+	Warehouse p2_wh{sz * 2, sz, std::move(bitset_p2), char_grid_wide};
 
 	for (const auto& xy : box_xy_v) {
 		p2_wh.add_box(rf, xy.x * 2, xy.y);
@@ -168,72 +164,7 @@ long long aoc24_15::move_robot_and_get_sum_of_coordinates(
 	return grid.sum_of_all_box_coordinates();
 }
 
-void aoc24_15::extract_spawn_and_box_positions(
-    aoc24::Char_grid& grid,
-    aoc24::Vec2d& spawn_pos,
-    std::vector<aoc24::Vec2d>& box_pos_v)
-{
-	int num_rob = 0;
-	for (size_t row = 0; row < grid.height(); ++row) {
-		for (size_t col = 0; col < grid.width(); ++col) {
-			bool found_char = false;
-			char c = grid.char_at(col, row);
-			switch (c) {
-			case chars::box_ch:
-				box_pos_v.emplace_back(col, row);
-				found_char = true;
-				break;
-			case chars::robot_ch:
-				if (num_rob++ > 0) {
-					throw std::invalid_argument(
-					    "The reference grid contains more than one robot "
-					    "character ('"
-					    + std::string{c} + "')");
-				}
-				spawn_pos.x = static_cast<int>(col);
-				spawn_pos.y = static_cast<int>(row);
-				found_char = true;
-				break;
-			default:
-				break;
-			}
-			if (found_char) {
-				// Replace Box or Robot with empty char
-				grid.set_char(static_cast<size_t>(col),
-				              static_cast<size_t>(row),
-				              chars::empty_ch);
-			}
-		}
-	}
-}
-
 std::ostream& aoc24_15::operator<<(std::ostream& ostr, aoc24::Vec2d& vec)
 {
 	return ostr << '(' << vec.x << ", " << vec.y << ')';
-}
-
-aoc24::Char_grid aoc24_15::create_new_wider_grid(
-    const aoc24::Char_grid& reference_grid)
-{
-	aoc24::Char_grid new_grid{'.',
-	                          reference_grid.width() * 2,
-	                          reference_grid.width()};
-	for (size_t row = 0; row < reference_grid.height(); ++row) {
-		for (size_t col = 0; col < reference_grid.width(); ++col) {
-			char c = reference_grid.char_at(col, row);
-			switch (c) {
-			case chars::empty_ch:
-				break;
-			case chars::wall_ch:
-				new_grid.set_char(col * 2, row, chars::wall_ch);
-				new_grid.set_char(col * 2 + 1, row, chars::wall_ch);
-				break;
-			default:
-				throw std::invalid_argument(
-				    "The reference grid contains unknown character '"
-				    + std::string{c} + "'.");
-			}
-		}
-	}
-	return new_grid;
 }
