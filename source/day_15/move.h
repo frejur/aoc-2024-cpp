@@ -1,5 +1,5 @@
-#ifndef DAY_15_H
-#define DAY_15_H
+#ifndef MOVE_H
+#define MOVE_H
 #include "warehouse.h"
 #include <queue>
 
@@ -13,4 +13,4 @@ long long move_robot_and_get_sum_of_coordinates(
 
 } // namespace aoc24_15
 
-#endif // DAY_15_H
+#endif // MOVE_H

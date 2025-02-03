@@ -4,13 +4,15 @@ message("Processing /day_${day_number}...")
 set(T_THIS "aoc_2024_day_${day_number}")
 
 add_executable(${T_THIS}
-    day_15.cpp day_15.h
-    io_utils.cpp
-    keys.h keys.cpp
+    day_15.cpp 
+    io_utils.h io_utils.cpp
+    grid_utils.h grid_utils.cpp
     warehouse.h warehouse.cpp
     warehouse_col.h warehouse_col.cpp
     robot.h robot.cpp
     box.h box.cpp
+    move.h move.cpp
+    keys.h keys.cpp
     
     # Part one
     s_box.h s_box.cpp
@@ -31,8 +33,6 @@ add_executable(${T_THIS}
     ../lib/bit_grid.cpp
     ../lib/extract.h
     ../lib/extract.cpp
-    grid_utils.h grid_utils.cpp
-    io_utils.h
 )
 
 # Dynamically copy the puzzle sample input into a
