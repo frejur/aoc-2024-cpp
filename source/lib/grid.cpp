@@ -119,6 +119,12 @@ aoc24::Char_grid::Char_grid(const std::string& file_path, size_t grid_size)
     , g_(read_input_into_grid(file_path, grid_size))
 {}
 
+aoc24::Char_grid::Char_grid(
+    const std::string& file_path, size_t width, size_t height)
+    : Grid(width, height)
+    , g_(read_input_into_grid(file_path, width, height))
+{}
+
 aoc24::Char_grid::Char_grid(const std::vector<std::string>& text,
                             size_t grid_size)
     : Grid(grid_size)
