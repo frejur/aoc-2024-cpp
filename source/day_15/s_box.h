@@ -34,8 +34,6 @@ class Simple_box : public Box_new
 	                              Box_new* linked_box_ptr) override;
 	virtual void unlink_box(Box_new* box) override;
 	virtual std::vector<Edge_tile_instruction> update_adj() override;
-	virtual std::vector<Edge_tile_instruction> update_adj(
-	    aoc24::Direction dir) override;
 
 	virtual Box_new** linked_box_address(Edge_tile tile) const override;
 	virtual Box_new* linked_box(Edge_tile tile) const override;
@@ -51,13 +49,6 @@ public:
 	                                  int w,
 	                                  int h) const override;
 	virtual long long bitmap() const override { return 1; }
-	virtual void test() const override
-	{
-		if (is_stuck()) {
-			std::cout << "Box at " << aoc24::xytoa(position.x, position.y)
-			          << " is stuck" << '\n';
-		}
-	}
 	virtual std::vector<Edge_tile> edge_tiles() const override;
 	virtual std::vector<Edge_tile> edge_tiles(Direction dir) const override;
 };

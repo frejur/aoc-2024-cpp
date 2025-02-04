@@ -4,9 +4,9 @@
 #include "grid_utils.h"
 #include "io_utils.h"
 #include "move.h"
-#include "r_box.h"
 #include "s_box.h"
 #include "warehouse.h"
+#include "wd_box.h"
 #include <memory>
 
 namespace {
@@ -87,11 +87,11 @@ try {
 	// Part two
 	Char_grid char_grid_wide{create_new_wider_grid(char_grid)};
 
-	Rect_box_factory rf;
+	Wide_box_factory wd_f;
 	Warehouse p2_wh{sz * 2, sz, std::move(bitset_p2), char_grid_wide};
 
 	for (const auto& xy : box_xy_v) {
-		p2_wh.add_box(rf, xy.x * 2, xy.y);
+		p2_wh.add_box(wd_f, xy.x * 2, xy.y);
 	}
 
 	p2_wh.spawn_robot(spawn_xy.x * 2, spawn_xy.y);

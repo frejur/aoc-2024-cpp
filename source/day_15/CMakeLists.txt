@@ -14,11 +14,13 @@ add_executable(${T_THIS}
     move.h move.cpp
     keys.h keys.cpp
     
+    r_box.h r_box.cpp
+    
     # Part one
     s_box.h s_box.cpp
     
     # Part two
-    r_box.h r_box.cpp
+    wd_box.h wd_box.cpp
     
     ../lib/direction.h
     ../lib/direction.cpp

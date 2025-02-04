@@ -369,14 +369,6 @@ void aoc24_15::Warehouse::print_map(std::ostream& ostr) const
 	}
 }
 
-void aoc24_15::Warehouse::test_boxes() const
-{
-	for (const auto& b : boxes_) {
-		const auto& bref = *b.get();
-		bref.test();
-	}
-}
-
 aoc24_15::Box_integrity aoc24_15::Warehouse::box_integrity() const
 {
 	// Mark boxes

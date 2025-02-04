@@ -121,11 +121,6 @@ std::vector<aoc24_15::Edge_tile_instruction> aoc24_15::Simple_box::update_adj()
 	return inv_tile_instr;
 }
 
-std::vector<aoc24_15::Edge_tile_instruction> aoc24_15::Simple_box::update_adj(
-    aoc24::Direction dir)
-{
-	return {};
-}
 
 aoc24_15::Box_new** aoc24_15::Simple_box::linked_box_address(Edge_tile tile) const
 {

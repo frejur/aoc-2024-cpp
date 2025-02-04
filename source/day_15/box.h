@@ -92,10 +92,6 @@ public:
 	// Returns instructions for updating the inverted edge tiles of
 	// the affected adjacent boxes
 	virtual std::vector<Edge_tile_instruction> update_adj() = 0;
-	virtual std::vector<Edge_tile_instruction> update_adj(aoc24::Direction dir)
-	    = 0;
-
-	virtual void test() const = 0;
 
 	virtual ~Box_new() = default;
 
@@ -161,12 +157,10 @@ private:
 	virtual bool intersects_with_rect(int top_L_x, int top_L_y, int w, int h) const override { return false; }
 	virtual long long bitmap() const override { return 0; }
 	virtual std::vector<Edge_tile_instruction> update_adj() override { return {}; }
-	virtual std::vector<Edge_tile_instruction> update_adj(aoc24::Direction dir) override { return {}; }
 	virtual std::vector<Edge_tile> edge_tiles() const override { return {}; }
 	virtual std::vector<Edge_tile> edge_tiles(aoc24::Direction dir) const override{ return {}; }
 	virtual void unlink_edge_tile(Edge_tile edge_tile) override {};
 	virtual void update_edge_tile(Edge_tile edge_tile, Box_new* linked_box_ptr) override {};
-	virtual void test() const override{};
 	virtual void unlink_box(Box_new* box) override {};
 	virtual Box_new** linked_box_address(Edge_tile tile) const override { return nullptr; }
 	virtual Box_new* linked_box(Edge_tile tile) const override { return nullptr; }
