@@ -1,5 +1,4 @@
 #include "box.h"
-#include <algorithm>
 #include <stdexcept>
 
 namespace {

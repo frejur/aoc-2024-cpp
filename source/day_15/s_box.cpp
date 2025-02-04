@@ -3,8 +3,9 @@
 #include "warehouse_col.h"
 #include <array>
 
-aoc24_15::Simple_box::Simple_box(Warehouse* parent_grid, int pos_x, int pos_y)
-    : Box_new(parent_grid, pos_x, pos_y)
+aoc24_15::Simple_box::Simple_box(
+    Warehouse* parent_grid, int pos_x, int pos_y)
+    : Rect_box(parent_grid, pos_x, pos_y, 1, 1)
     , adj_box_U_(&Box_new::Dummy)
     , adj_box_R_(&Box_new::Dummy)
     , adj_box_D_(&Box_new::Dummy)
@@ -19,17 +20,6 @@ aoc24_15::Simple_box::~Simple_box()
 	}
 }
 
-void aoc24_15::Simple_box::unlink_edge_tile(Edge_tile edge_tile)
-{
-	update_edge_tile(edge_tile, &Box_new::Dummy);
-}
-
-void aoc24_15::Simple_box::update_edge_tile(Edge_tile edge_tile,
-                                            Box_new* linked_box_ptr)
-{
-	Box_new** current_box_ptr = linked_box_address(edge_tile);
-	*current_box_ptr = linked_box_ptr;
-}
 
 void aoc24_15::Simple_box::unlink_box(Box_new* box)
 {
@@ -86,41 +76,6 @@ bool aoc24_15::Simple_box::intersects_with_rect(int top_L_x,
 	        && (top_L_y <= position.y && position.y <= (top_L_y + h)));
 }
 
-std::vector<aoc24_15::Edge_tile_instruction> aoc24_15::Simple_box::update_adj()
-{
-	std::vector<Edge_tile_instruction> inv_tile_instr;
-
-	const auto& col = grid_->collision;
-	std::vector<const Box_new*> adj_boxes{col->find_potentially_adj(*this)};
-	std::vector<Edge_tile> center_edge_tiles{edge_tiles()};
-	for (const Edge_tile& et : center_edge_tiles) {
-		bool found_adj = false;
-		for (size_t i = 0; !found_adj && i < adj_boxes.size(); ++i) {
-			const Box_new* adj_box = adj_boxes[i];
-			if (!adj_box->contains_pt(et.position.x, et.position.y)) {
-				continue;
-			}
-
-			// The adjacent Box contains the given edge tile => Update link.
-			Box_new* mutable_box_adj = const_cast<Box_new*>(adj_box);
-			update_edge_tile(et, mutable_box_adj);
-
-			// There SHOULD be an edge tile in the adjacent box, much like
-			// the current center edge tile, but INVERTED.
-			Direction dir_inv = aoc24::dir_inverted(et.direction);
-			Edge_tile et_inv = {et.position + aoc24::dir_to_offset(dir_inv),
-			                    dir_inv};
-			inv_tile_instr.emplace_back(et_inv, mutable_box_adj);
-			found_adj = true;
-		}
-		if (!found_adj) {
-			unlink_edge_tile(et); // Dummy
-		}
-	}
-
-	return inv_tile_instr;
-}
-
 
 aoc24_15::Box_new** aoc24_15::Simple_box::linked_box_address(Edge_tile tile) const
 {
@@ -131,12 +86,6 @@ aoc24_15::Box_new** aoc24_15::Simple_box::linked_box_address(Edge_tile tile) con
 		throw std::logic_error("Could not find edge tile");
 	}
 	return match->second;
-}
-
-aoc24_15::Box_new* aoc24_15::Simple_box::linked_box(Edge_tile tile) const
-{
-	Box_new** edge_tile_ptr = linked_box_address(tile);
-	return *edge_tile_ptr;
 }
 
 std::vector<aoc24_15::Box_new*> aoc24_15::Simple_box::linked_boxes() const

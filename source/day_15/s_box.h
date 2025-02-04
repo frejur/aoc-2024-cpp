@@ -1,16 +1,15 @@
 #ifndef S_BOX_H
 #define S_BOX_H
-#include "box.h"
+#include "r_box.h"
 #include <array>
 #include <map>
 
 namespace aoc24_15 {
 
-class Simple_box : public Box_new
+class Simple_box : public Rect_box
 {
 	friend class Simple_box_factory;
 	Simple_box(Warehouse* parent_grid, int pos_x, int pos_y);
-	~Simple_box();
 	Box_new* adj_box_U_;
 	Box_new* adj_box_R_;
 	Box_new* adj_box_D_;
@@ -29,19 +28,15 @@ class Simple_box : public Box_new
 	                                   {offset_[2], &adj_box_D_},
 	                                   {offset_[3], &adj_box_L_}};
 
-	virtual void unlink_edge_tile(Edge_tile edge_tile) override;
-	virtual void update_edge_tile(Edge_tile edge_tile,
-	                              Box_new* linked_box_ptr) override;
 	virtual void unlink_box(Box_new* box) override;
-	virtual std::vector<Edge_tile_instruction> update_adj() override;
 
 	virtual Box_new** linked_box_address(Edge_tile tile) const override;
-	virtual Box_new* linked_box(Edge_tile tile) const override;
 	virtual std::vector<Box_new*> linked_boxes() const override;
 	virtual std::vector<Box_new*> linked_boxes(
 	    aoc24::Direction dir) const override;
 
 public:
+	~Simple_box();
 	virtual bool is_stuck() const override;
 	virtual bool contains_pt(int pos_x, int pos_y) const override;
 	virtual bool intersects_with_rect(int top_L_x,
