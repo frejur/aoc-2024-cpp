@@ -24,6 +24,9 @@ std::vector<std::string> aoc24::read_input_into_grid(
 	s.reserve(width);
 
 	while (std::getline(ifs, s)) {
+		if (s.empty()) {
+			break;
+		}
 		assert(s.size() == width);
 		str_v.emplace_back(std::move(s));
 	}
