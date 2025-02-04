@@ -4,7 +4,7 @@
 
 namespace aoc24_15 {
 
-class Box_new;
+class Box;
 
 // Provides collision detection helpers for the linked Warehouse
 // Only exposed to Warehouse and derivatives of Box
@@ -33,7 +33,7 @@ private:
 	                                     int h) const;
 	bool pt_has_box(int pos_x, int pos_y) const;
 	bool rect_has_box(int top_L_x, int top_L_y, int w, int h) const;
-	std::vector<const Box_new*> find_potentially_adj(const Box_new&) const;
+	std::vector<const Box*> find_potentially_adj(const Box&) const;
 };
 
 } // namespace aoc24_15

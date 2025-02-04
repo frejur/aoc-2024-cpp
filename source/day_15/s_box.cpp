@@ -6,34 +6,34 @@
 aoc24_15::Simple_box::Simple_box(
     Warehouse* parent_grid, int pos_x, int pos_y)
     : Rect_box(parent_grid, pos_x, pos_y, 1, 1)
-    , adj_box_U_(&Box_new::Dummy)
-    , adj_box_R_(&Box_new::Dummy)
-    , adj_box_D_(&Box_new::Dummy)
-    , adj_box_L_(&Box_new::Dummy)
+    , adj_box_U_(&Box::Dummy)
+    , adj_box_R_(&Box::Dummy)
+    , adj_box_D_(&Box::Dummy)
+    , adj_box_L_(&Box::Dummy)
 {}
 
 aoc24_15::Simple_box::~Simple_box()
 {
-	std::vector<Box_new*> unique_boxes{Simple_box::linked_boxes()};
-	for (Box_new* ub : unique_boxes) {
+	std::vector<Box*> unique_boxes{Simple_box::linked_boxes()};
+	for (Box* ub : unique_boxes) {
 		notify_destruction(ub);
 	}
 }
 
-
-void aoc24_15::Simple_box::unlink_box(Box_new* box)
+void aoc24_15::Simple_box::unlink_box(
+    Box* box)
 {
 	if (adj_box_U_ != nullptr && adj_box_U_ == box) {
-		adj_box_U_ = &Box_new::Dummy;
+		adj_box_U_ = &Box::Dummy;
 	}
 	if (adj_box_R_ != nullptr && adj_box_R_ == box) {
-		adj_box_R_ = &Box_new::Dummy;
+		adj_box_R_ = &Box::Dummy;
 	}
 	if (adj_box_D_ != nullptr && adj_box_D_ == box) {
-		adj_box_D_ = &Box_new::Dummy;
+		adj_box_D_ = &Box::Dummy;
 	}
 	if (adj_box_L_ != nullptr && adj_box_L_ == box) {
-		adj_box_L_ = &Box_new::Dummy;
+		adj_box_L_ = &Box::Dummy;
 	}
 }
 
@@ -76,8 +76,8 @@ bool aoc24_15::Simple_box::intersects_with_rect(int top_L_x,
 	        && (top_L_y <= position.y && position.y <= (top_L_y + h)));
 }
 
-
-aoc24_15::Box_new** aoc24_15::Simple_box::linked_box_address(Edge_tile tile) const
+aoc24_15::Box** aoc24_15::Simple_box::linked_box_address(
+    Edge_tile tile) const
 {
 	// Calculate offset from center to find edge tile pointer
 	Edge_tile offs_edge_tile{tile.position - position, tile.direction};
@@ -88,17 +88,17 @@ aoc24_15::Box_new** aoc24_15::Simple_box::linked_box_address(Edge_tile tile) con
 	return match->second;
 }
 
-std::vector<aoc24_15::Box_new*> aoc24_15::Simple_box::linked_boxes() const
+std::vector<aoc24_15::Box*> aoc24_15::Simple_box::linked_boxes() const
 {
-	std::array<Box_new*, 4> linked_boxes{adj_box_U_,
-	                                     adj_box_R_,
-	                                     adj_box_D_,
-	                                     adj_box_L_};
-	std::vector<Box_new*> unique_boxes;
-	for (Box_new* linked : linked_boxes) {
+	std::array<Box*, 4> linked_boxes{adj_box_U_,
+	                                 adj_box_R_,
+	                                 adj_box_D_,
+	                                 adj_box_L_};
+	std::vector<Box*> unique_boxes;
+	for (Box* linked : linked_boxes) {
 		if (linked != nullptr && !linked->is_dummy) {
 			bool already_covered = false;
-			for (const Box_new* unique : unique_boxes) {
+			for (const Box* unique : unique_boxes) {
 				if (linked == unique) {
 					already_covered = true;
 					break;
@@ -112,10 +112,10 @@ std::vector<aoc24_15::Box_new*> aoc24_15::Simple_box::linked_boxes() const
 	return unique_boxes;
 }
 
-std::vector<aoc24_15::Box_new*> aoc24_15::Simple_box::linked_boxes(
+std::vector<aoc24_15::Box*> aoc24_15::Simple_box::linked_boxes(
     aoc24::Direction dir) const
 {
-	Box_new* box = nullptr;
+	Box* box = nullptr;
 	switch (dir) {
 	case Direction::Up:
 		box = adj_box_U_;
@@ -157,8 +157,8 @@ std::vector<aoc24_15::Edge_tile> aoc24_15::Simple_box::edge_tiles(
 	return {{position + offset_[idx].position, offset_[idx].direction}};
 }
 
-std::unique_ptr<aoc24_15::Box_new> aoc24_15::Simple_box_factory::create_box(
+std::unique_ptr<aoc24_15::Box> aoc24_15::Simple_box_factory::create_box(
     Warehouse& parent_grid, int pos_x, int pos_y)
 {
-	return std::unique_ptr<Box_new>(new Simple_box{&parent_grid, pos_x, pos_y});
+	return std::unique_ptr<Box>(new Simple_box{&parent_grid, pos_x, pos_y});
 }

@@ -13,7 +13,7 @@ bool aoc24_15::Edge_tile_comparator::operator()(
 }
 
 aoc24_15::Edge_tile_instruction::Edge_tile_instruction(
-    const Edge_tile& t, Box_new* b)
+    const Edge_tile& t, Box* b)
     : tile(t)
     , box(b)
 {}

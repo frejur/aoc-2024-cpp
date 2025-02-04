@@ -6,8 +6,9 @@
 #include <stack>
 
 namespace {
-bool has_been_processed(const aoc24_15::Box_new* box,
-                        const std::set<const aoc24_15::Box_new*>& processed_boxes)
+bool has_been_processed(
+    const aoc24_15::Box* box,
+    const std::set<const aoc24_15::Box*>& processed_boxes)
 {
 	return (processed_boxes.find(box) != processed_boxes.end());
 }
@@ -80,7 +81,7 @@ void aoc24_15::Warehouse::prune_stuck_boxes()
 	while (keep_looking) {
 		keep_looking = false; // Only keep looking if new matches are found
 		for (auto it = boxes_.begin(); it != boxes_.end(); ++it) {
-			Box_new& b = *it->get();
+			Box& b = *it->get();
 			if (b.prune_ || b.is_stuck()) {
 				keep_looking = true;
 				add_box_to_map(b, stuck_map());
@@ -106,8 +107,8 @@ void aoc24_15::Warehouse::prune_stuck_boxes()
 	}
 }
 
-void aoc24_15::Warehouse::add_box_to_map(const Box_new& box,
-                                         aoc24::Dyn_bitset& map)
+void aoc24_15::Warehouse::add_box_to_map(
+    const Box& box, aoc24::Dyn_bitset& map)
 {
 	const long long bitmap = box.bitmap();
 	const size_t grid_max = sz * sz_y - 1;
@@ -134,43 +135,44 @@ void aoc24_15::Warehouse::add_box_to_map(const Box_new& box,
 		pos += sz - box.width;
 	}
 }
-void aoc24_15::Warehouse::add_box_to_print_map(const Box_new& box) const
+void aoc24_15::Warehouse::add_box_to_print_map(
+    const Box& box) const
 {
 	// Casting away constness is safe in this context, because the print map
 	// doesn't change the essential state or invariants of the Warehouse object
 	const_cast<Warehouse*>(this)->add_box_to_map(box, *print_);
 }
 
-std::vector<aoc24_15::Box_new*> aoc24_15::Warehouse::find_mutable_boxes_in_rect(
+std::vector<aoc24_15::Box*> aoc24_15::Warehouse::find_mutable_boxes_in_rect(
     int top_L_x, int top_L_y, int w, int h) const
 {
-	const std::vector<const Box_new*> boxes_c{
+	const std::vector<const Box*> boxes_c{
 	    find_boxes_in_rect(top_L_x, top_L_y, w, h)};
-	std::vector<Box_new*> boxes;
+	std::vector<Box*> boxes;
 	boxes.reserve(boxes_c.size());
-	for (const Box_new* b : boxes_c) {
+	for (const Box* b : boxes_c) {
 		// Cast away constness
-		boxes.emplace_back(const_cast<Box_new*>(b));
+		boxes.emplace_back(const_cast<Box*>(b));
 	}
 	return boxes;
 }
 
-std::vector<aoc24_15::Box_new*> aoc24_15::Warehouse::movable_adj_boxes_in_dir(
-    const Box_new& start_box, aoc24::Direction dir) const
+std::vector<aoc24_15::Box*> aoc24_15::Warehouse::movable_adj_boxes_in_dir(
+    const Box& start_box, aoc24::Direction dir) const
 {
 	// NOTE: Assumes the start box is NOT a Dummy box
 
-	std::set<const Box_new*> processed_boxes;
-	std::stack<Box_new*> box_stack;
+	std::set<const Box*> processed_boxes;
+	std::stack<Box*> box_stack;
 
 	// The start box needs to be included, and mutable
-	Box_new* start_box_ptr = &(const_cast<Box_new&>(start_box));
+	Box* start_box_ptr = &(const_cast<Box&>(start_box));
 	box_stack.push(start_box_ptr);
-	std::vector<Box_new*> mv_boxes;
+	std::vector<Box*> mv_boxes;
 
 	bool is_blocked = false;
 	while (!is_blocked && !box_stack.empty()) {
-		Box_new* current_box = box_stack.top();
+		Box* current_box = box_stack.top();
 		box_stack.pop();
 
 		if (has_been_processed(current_box, processed_boxes)) {
@@ -194,15 +196,15 @@ std::vector<aoc24_15::Box_new*> aoc24_15::Warehouse::movable_adj_boxes_in_dir(
 
 		if (!is_blocked) {
 			if (current_box != nullptr && !current_box->is_dummy) {
-				std::vector<Box_new*> l_box{current_box->linked_boxes(dir)};
-				for (Box_new* b : l_box) {
+				std::vector<Box*> l_box{current_box->linked_boxes(dir)};
+				for (Box* b : l_box) {
 					if (!has_been_processed(b, processed_boxes)) {
 						box_stack.push(b);
 					}
 				}
 			}
 
-			processed_boxes.insert(const_cast<const Box_new*>(current_box));
+			processed_boxes.insert(const_cast<const Box*>(current_box));
 			mv_boxes.emplace_back(current_box);
 		}
 	}
@@ -214,20 +216,20 @@ std::vector<aoc24_15::Box_new*> aoc24_15::Warehouse::movable_adj_boxes_in_dir(
 	return mv_boxes;
 }
 
-void aoc24_15::Warehouse::move_boxes(std::vector<Box_new*> boxes,
-                                     aoc24::Direction dir)
+void aoc24_15::Warehouse::move_boxes(
+    std::vector<Box*> boxes, aoc24::Direction dir)
 {
 	aoc24::Vec2d move_v = aoc24::dir_to_offset(dir);
-	for (Box_new* box : boxes) {
+	for (Box* box : boxes) {
 		auto linked = box->linked_boxes();
-		for (Box_new* lb : linked) {
+		for (Box* lb : linked) {
 			lb->unlink_box(box);
 		}
 		box->position.x += move_v.x;
 		box->position.y += move_v.y;
 	}
 
-	for (Box_new* box : boxes) {
+	for (Box* box : boxes) {
 		std::vector<Edge_tile_instruction> instr{box->update_adj()};
 		for (const auto& i : instr) {
 			i.box->update_edge_tile(i.tile, box);
@@ -235,10 +237,10 @@ void aoc24_15::Warehouse::move_boxes(std::vector<Box_new*> boxes,
 	}
 }
 
-std::vector<const aoc24_15::Box_new*> aoc24_15::Warehouse::find_boxes_in_rect(
+std::vector<const aoc24_15::Box*> aoc24_15::Warehouse::find_boxes_in_rect(
     int top_L_x, int top_L_y, int w, int h) const
 {
-	std::vector<const Box_new*> boxes;
+	std::vector<const Box*> boxes;
 	for (size_t i = 0; i < boxes_.size(); ++i) {
 		const auto& box = *boxes_[i].get();
 		if (box.intersects_with_rect(top_L_x, top_L_y, w, h)) {
@@ -301,8 +303,7 @@ void aoc24_15::Warehouse::move_robot(aoc24::Direction move_dir)
 	}
 
 	// Check for movable boxes
-	std::vector<Box_new*> mv_boxes{
-	    movable_adj_boxes_in_dir(*start_box, move_dir)};
+	std::vector<Box*> mv_boxes{movable_adj_boxes_in_dir(*start_box, move_dir)};
 
 	if (mv_boxes.empty()) {
 		/*
@@ -317,7 +318,7 @@ void aoc24_15::Warehouse::move_robot(aoc24::Direction move_dir)
 
 	// Check for any stuck boxes
 	for (size_t i = 0; i < mv_boxes.size(); ++i) {
-		Box_new& box = *mv_boxes[i];
+		Box& box = *mv_boxes[i];
 		if (box.is_stuck()) {
 			box.prune_ = true;
 			prune_stuck_boxes();
@@ -329,7 +330,7 @@ void aoc24_15::Warehouse::move_robot(aoc24::Direction move_dir)
 void aoc24_15::Warehouse::add_box(Box_factory& f, int pos_x, int pos_y)
 {
 	boxes_.emplace_back(f.create_box(*this, pos_x, pos_y));
-	Box_new& box = *boxes_.back().get();
+	Box& box = *boxes_.back().get();
 	std::vector<Edge_tile_instruction> instr{box.update_adj()};
 	for (const auto& i : instr) {
 		i.box->update_edge_tile(i.tile, &box);
@@ -374,20 +375,20 @@ aoc24_15::Box_integrity aoc24_15::Warehouse::box_integrity() const
 	// Mark boxes
 	print_->reset();
 	for (size_t i = 0; i < boxes_.size(); ++i) {
-		const Box_new& box = *boxes_[i].get();
+		const Box& box = *boxes_[i].get();
 		add_box_to_print_map(box);
 	}
 
 	// Check links
 	for (size_t i = 0; i < boxes_.size(); ++i) {
-		const Box_new& box = *boxes_[i].get();
+		const Box& box = *boxes_[i].get();
 		std::vector<Edge_tile> tiles = box.edge_tiles();
 		for (const auto& t : tiles) {
-			const Box_new* linked_box_ptr = box.linked_box(t);
+			const Box* linked_box_ptr = box.linked_box(t);
 			if (linked_box_ptr == nullptr) {
 				return {box, t.position, "Box or Dummy box", "nullptr"};
 			}
-			const Box_new& linked_box = *linked_box_ptr;
+			const Box& linked_box = *linked_box_ptr;
 			bool tile_is_oob = !valid_xy(t.position.x, t.position.y);
 			size_t tile_pos = t.position.y * sz + t.position.x;
 			if (linked_box.is_dummy) {
@@ -411,7 +412,7 @@ long long aoc24_15::Warehouse::sum_of_all_box_coordinates() const
 
 	long long sum = 0;
 	for (size_t i = 0; i < boxes_.size(); ++i) {
-		const Box_new& box = *boxes_[i].get();
+		const Box& box = *boxes_[i].get();
 		sum += top_dist_f * box.position.y + box.position.x;
 	}
 	for (const aoc24::Vec2d& stuck : stuck_box_positions_) {
@@ -428,34 +429,35 @@ void aoc24_15::Warehouse::throw_if_no_map() const
 	}
 }
 
-const aoc24_15::Box_new* aoc24_15::Warehouse::find_box_at(int top_L_x,
-                                                          int top_L_y) const
+const aoc24_15::Box* aoc24_15::Warehouse::find_box_at(
+    int top_L_x, int top_L_y) const
 {
-	std::vector<const Box_new*> boxes;
+	std::vector<const Box*> boxes;
 	for (size_t i = 0; i < boxes_.size(); ++i) {
 		const auto& box = *boxes_[i].get();
 		if (box.contains_pt(top_L_x, top_L_y)) {
 			return &box;
 		}
 	}
-	return &Box_new::Dummy;
+	return &Box::Dummy;
 }
 
-aoc24_15::Box_new* aoc24_15::Warehouse::find_mutable_box_at(int top_L_x,
-                                                            int top_L_y) const
+aoc24_15::Box* aoc24_15::Warehouse::find_mutable_box_at(
+    int top_L_x, int top_L_y) const
 {
 	auto match = find_box_at(top_L_x, top_L_y);
 	if (!match->is_dummy) {
 		// Cast away constness
-		return const_cast<Box_new*>(match);
+		return const_cast<Box*>(match);
 	}
-	return &Box_new::Dummy;
+	return &Box::Dummy;
 }
 
-aoc24_15::Box_integrity::Box_integrity(const Box_new& box,
-                                       const aoc24::Vec2d& tile_pos,
-                                       const std::string& expected,
-                                       const std::string& found)
+aoc24_15::Box_integrity::Box_integrity(
+    const Box& box,
+    const aoc24::Vec2d& tile_pos,
+    const std::string& expected,
+    const std::string& found)
     : has_errors(true)
     , faulty_box_initial_position(box.initial_position)
     , faulty_box_position(box.position)

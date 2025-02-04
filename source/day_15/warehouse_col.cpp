@@ -87,12 +87,12 @@ bool aoc24_15::Warehouse_collision::rect_has_box(int top_L_x,
 	return false;
 }
 
-std::vector<const aoc24_15::Box_new*>
+std::vector<const aoc24_15::Box*>
 aoc24_15::Warehouse_collision::find_potentially_adj(
-    const Box_new& center_box) const
+    const Box& center_box) const
 {
 	// Get all Box objects within the extended bounding box of the center
-	std::vector<const Box_new*> boxes
+	std::vector<const Box*> boxes
 	    = parent_.find_boxes_in_rect(center_box.position.x - 1,
 	                                 center_box.position.y - 1,
 	                                 center_box.width + 2,

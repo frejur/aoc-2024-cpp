@@ -5,7 +5,7 @@
 
 namespace aoc24_15 {
 
-class Box_new;
+class Box;
 
 struct Edge_tile
 {
@@ -42,9 +42,9 @@ struct Edge_tile_comparator
 
 struct Edge_tile_instruction
 {
-	Edge_tile_instruction(const Edge_tile& t, Box_new* b);
+	Edge_tile_instruction(const Edge_tile& t, Box* b);
 	const Edge_tile tile;
-	Box_new* box;
+	Box* box;
 };
 } // namespace aoc24_15
 

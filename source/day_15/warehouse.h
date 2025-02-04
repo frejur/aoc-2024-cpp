@@ -9,7 +9,7 @@
 namespace aoc24_15 {
 
 // Forward declarations
-class Box_new;
+class Box;
 class Box_factory;
 
 struct Box_integrity;
@@ -22,7 +22,7 @@ private:
 	bool map_ptr_init_;
 	int num_moves_;
 	Robot robot_;
-	std::vector<std::unique_ptr<Box_new>> boxes_;
+	std::vector<std::unique_ptr<Box>> boxes_;
 	std::vector<aoc24::Vec2d> stuck_box_positions_;
 
 	aoc24::Dyn_bitset* walls_;
@@ -35,22 +35,22 @@ private:
 	void add_walls(const aoc24::Char_grid& reference_grid);
 	void prune_stuck_boxes();
 
-	void add_box_to_map(const Box_new& box, aoc24::Dyn_bitset& map);
-	void add_box_to_print_map(const Box_new& box) const;
+	void add_box_to_map(const Box& box, aoc24::Dyn_bitset& map);
+	void add_box_to_print_map(const Box& box) const;
 
 	void throw_if_no_map() const;
 
 	// Collision detection
-	const Box_new* find_box_at(int top_L_x, int top_L_y) const;
-	Box_new* find_mutable_box_at(int top_L_x, int top_L_y) const;
-	std::vector<const Box_new*> find_boxes_in_rect(int top_L_x,
-	                                               int top_L_y,
-	                                               int w,
-	                                               int h) const;
-	std::vector<Box_new*> find_mutable_boxes_in_rect(int top_L_x,
-	                                                 int top_L_y,
-	                                                 int w,
-	                                                 int h) const;
+	const Box* find_box_at(int top_L_x, int top_L_y) const;
+	Box* find_mutable_box_at(int top_L_x, int top_L_y) const;
+	std::vector<const Box*> find_boxes_in_rect(int top_L_x,
+	                                           int top_L_y,
+	                                           int w,
+	                                           int h) const;
+	std::vector<Box*> find_mutable_boxes_in_rect(int top_L_x,
+	                                             int top_L_y,
+	                                             int w,
+	                                             int h) const;
 
 	// Push boxes
 
@@ -60,10 +60,10 @@ private:
 	//
 	// Returns an empty vector if any of the Boxes are blocked by the bounds of
 	// the Warehouse or by a stationary object.
-	std::vector<Box_new*> movable_adj_boxes_in_dir(const Box_new& start_box,
-	                                               aoc24::Direction dir) const;
+	std::vector<Box*> movable_adj_boxes_in_dir(const Box& start_box,
+	                                           aoc24::Direction dir) const;
 
-	void move_boxes(std::vector<Box_new*> boxes, aoc24::Direction dir);
+	void move_boxes(std::vector<Box*> boxes, aoc24::Direction dir);
 
 public:
 	const Warehouse_collision* collision;
@@ -87,7 +87,7 @@ struct Box_integrity
 	Box_integrity()
 	    : has_errors(false)
 	{}
-	Box_integrity(const Box_new& box,
+	Box_integrity(const Box& box,
 	              const aoc24::Vec2d& tile_pos,
 	              const std::string& expected,
 	              const std::string& found);

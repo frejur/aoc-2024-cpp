@@ -7,7 +7,7 @@
 
 namespace aoc24_15 {
 
-class Box_new
+class Box
 {
 public:
 	const bool is_dummy;
@@ -34,36 +34,40 @@ public:
 	virtual std::vector<Edge_tile> edge_tiles() const = 0;
 
 	// Gets linked Box at edge tile
-	virtual Box_new** linked_box_address(Edge_tile tile) const = 0;
-	virtual Box_new* linked_box(Edge_tile tile) const = 0;
-	virtual std::vector<Box_new*> linked_boxes() const = 0;
-	virtual std::vector<Box_new*> linked_boxes(aoc24::Direction dir) const = 0;
+	virtual Box** linked_box_address(Edge_tile tile) const = 0;
+	virtual Box* linked_box(Edge_tile tile) const = 0;
+	virtual std::vector<Box*> linked_boxes() const = 0;
+	virtual std::vector<Box*> linked_boxes(aoc24::Direction dir) const = 0;
 
 	// Updated the links to all adjacent boxes,
 	// Returns instructions for updating the inverted edge tiles of
 	// the affected adjacent boxes
 	virtual std::vector<Edge_tile_instruction> update_adj() = 0;
 
-	virtual ~Box_new() = default;
+	virtual ~Box() = default;
 
 	bool marked_for_pruning() const { return prune_; }
 
 protected:
 	bool prune_;
 	Warehouse* grid_;
-	Box_new(Warehouse* parent_grid, int pos_x, int pos_y, int w = 1, int h = 1);
+	Box(Warehouse* parent_grid, int pos_x, int pos_y, int w = 1, int h = 1);
 
 	// Cleanup pointers
-	void notify_destruction(Box_new* box) { box->unlink_box(this); }
+	void notify_destruction(
+	    Box* box)
+	{
+		box->unlink_box(this);
+	}
 
-	virtual void unlink_box(Box_new* box) = 0;
+	virtual void unlink_box(Box* box) = 0;
 	virtual void unlink_edge_tile(Edge_tile edge_tile) = 0;
-	virtual void update_edge_tile(Edge_tile edge_tile, Box_new* linked_box_ptr)
-	    = 0;
+	virtual void update_edge_tile(Edge_tile edge_tile, Box* linked_box_ptr) = 0;
 
 private:
 	enum class Dummy_box_type { Dummy = 1 };
-	Box_new(Dummy_box_type)
+	Box(
+	    Dummy_box_type)
 	    : is_dummy(true)
 	    , width(0)
 	    , height(0)
@@ -75,7 +79,7 @@ private:
 
 public:
 	// Needs access to the internals of other Box objects to clean up pointers
-	friend void Box_new::notify_destruction(Box_new*);
+	friend void Box::notify_destruction(Box*);
 
 	// The parent warehouse has access to the internals of its Box objects
 	friend class Warehouse;
@@ -85,21 +89,21 @@ public:
 	static Dummy_box Dummy;
 };
 
-class Dummy_box : public Box_new
+class Dummy_box : public Box
 {
 public:
 	Dummy_box()
-	    : Box_new(Dummy_box_type::Dummy)
+	    : Box(Dummy_box_type::Dummy)
 	{}
-	using Box_new::is_dummy;
+	using Box::is_dummy;
 
 private:
 	// Hide members
-	using Box_new::height;
-	using Box_new::initial_position;
-	using Box_new::marked_for_pruning;
-	using Box_new::position;
-	using Box_new::width;
+	using Box::height;
+	using Box::initial_position;
+	using Box::marked_for_pruning;
+	using Box::position;
+	using Box::width;
 
 	// Hide methods
 	// clang-format off
@@ -111,26 +115,26 @@ private:
 	virtual std::vector<Edge_tile> edge_tiles() const override { return {}; }
 	virtual std::vector<Edge_tile> edge_tiles(aoc24::Direction dir) const override{ return {}; }
 	virtual void unlink_edge_tile(Edge_tile edge_tile) override {};
-	virtual void update_edge_tile(Edge_tile edge_tile, Box_new* linked_box_ptr) override {};
-	virtual void unlink_box(Box_new* box) override {};
-	virtual Box_new** linked_box_address(Edge_tile tile) const override { return nullptr; }
-	virtual Box_new* linked_box(Edge_tile tile) const override { return nullptr; }
-	virtual std::vector<Box_new*> linked_boxes() const override { return {}; }
-	virtual std::vector<Box_new*> linked_boxes(aoc24::Direction dir) const override { return {}; }
+	virtual void update_edge_tile(Edge_tile edge_tile, Box* linked_box_ptr) override {};
+	virtual void unlink_box(Box* box) override {};
+	virtual Box** linked_box_address(Edge_tile tile) const override { return nullptr; }
+	virtual Box* linked_box(Edge_tile tile) const override { return nullptr; }
+	virtual std::vector<Box*> linked_boxes() const override { return {}; }
+	virtual std::vector<Box*> linked_boxes(aoc24::Direction dir) const override { return {}; }
 	// clang-format on
 };
 
 class Box_factory
 {
-	friend Box_new;
+	friend Box;
 
 protected:
 	Box_factory(){};
 
 public:
-	virtual std::unique_ptr<Box_new> create_box(Warehouse& parent_grid,
-	                                            int pos_x,
-	                                            int pos_y)
+	virtual std::unique_ptr<Box> create_box(Warehouse& parent_grid,
+	                                        int pos_x,
+	                                        int pos_y)
 	    = 0;
 	virtual ~Box_factory() = default;
 };

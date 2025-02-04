@@ -15,9 +15,9 @@ int valid_box_dim(const int dim)
 
 //------------------------------------------------------------------------------
 
-aoc24_15::Dummy_box aoc24_15::Box_new::Dummy = Dummy_box();
+aoc24_15::Dummy_box aoc24_15::Box::Dummy = Dummy_box();
 
-aoc24_15::Box_new::Box_new(
+aoc24_15::Box::Box(
     Warehouse* parent_grid, int pos_x, int pos_y, int w, int h)
     : is_dummy(false)
     , width(valid_box_dim(w))
