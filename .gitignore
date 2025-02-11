@@ -2,11 +2,16 @@
 input/
 test/
 
+
 # Builds
 build/
+build*/
+.vs/
+source/out/
 
 # CMake cache
 CMakeLists.txt.user
+CMakeSettings.json
 
 # Prerequisites
 *.d
