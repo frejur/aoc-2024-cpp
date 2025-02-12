@@ -70,7 +70,9 @@ public:
 	void add_end_point(int pos_x, int pos_y);
 	bool has_point(int pos_x, int pos_y) const;
 	long pending_score() const;
-	long score() const;
+	long estimated_final_score(
+	    const std::vector<std::vector<int>>& dist_to_end) const;
+	long final_score() const;
 	int number_of_points() const
 	{
 		return static_cast<int>(pts_.size() + (has_end_pt_ ? 1 : 0));
@@ -87,6 +89,29 @@ private:
 	long score_;
 	aoc24::Vec2d end_pt_pos_;
 	std::vector<Point> pts_;
+
+	static constexpr int turn_cost{1000};
+
+	// Score helpers
+	int calc_turn_cost(aoc24::Direction in_dir, aoc24::Direction out_dir) const;
+	int calc_move_cost(int start_x, int start_y, int end_x, int end_y) const;
+};
+
+// Used for priority queue
+struct Path_comparator
+{
+	const std::vector<std::vector<int>>& dist_;
+
+	Path_comparator(
+	    const std::vector<std::vector<int>>& dist)
+	    : dist_(dist)
+	{}
+	bool operator()(
+	    const Path& lhs, const Path& rhs) const
+	{
+		return lhs.estimated_final_score(dist_)
+		       > rhs.estimated_final_score(dist_);
+	}
 };
 
 } // namespace aoc24_16

@@ -33,13 +33,11 @@ try {
 	// Setup Maze
 	Maze m{std::move(bitset), chars, start_xy.x, start_xy.y, end_xy.x, end_xy.y};
 
-	std::cin.get();
-
 	// Part one
 	std::vector<Path> paths = get_shortest_paths(m);
 	pz.file_answer(1,
 	               "Shortest path score",
-	               paths.empty() ? -1 : paths.front().score());
+	               paths.empty() ? -1 : paths.front().final_score());
 
 	// Part two
 	pz.file_answer(2, "Unique best tiles", m.merge_and_count_path_tiles(paths));
