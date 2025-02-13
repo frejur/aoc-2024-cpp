@@ -11,6 +11,8 @@ bool pos_is_xy(
 }
 } // namespace
 
+constexpr std::array<int, 4> aoc24_16::Maze::dir_flags_;
+
 aoc24_16::Maze::Maze(
     std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset,
     const aoc24::Char_grid& reference_grid,
@@ -58,6 +60,7 @@ aoc24_16::Maze::Maze(
 	if (state_ != Maze_state::Dead_ends_marked) {
 		throw std::logic_error("Invalid state");
 	}
+	state_ = Maze_state::Ready;
 }
 
 int aoc24_16::Maze::number_of_forks_corners_and_u_turns() const
@@ -405,7 +408,7 @@ aoc24_16::Maze::Map& aoc24_16::Maze::map_from_adjacent_empty_tiles(
 
 void aoc24_16::Maze::throw_if_not_ready() const
 {
-	if (state_ == Maze_state::Ready) {
+	if (state_ != Maze_state::Ready) {
 		throw std::runtime_error("Maze is not ready");
 	}
 }
