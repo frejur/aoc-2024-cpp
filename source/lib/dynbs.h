@@ -37,6 +37,7 @@ public:
 	virtual std::unique_ptr<Dyn_bitset> new_reset_copy() const = 0;
 
 	virtual void* raw() = 0;
+	virtual ~Dyn_bitset() = default;
 };
 
 template<size_t Size>
