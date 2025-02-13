@@ -141,12 +141,12 @@ public:
 		return *this;
 	}
 
-	std::unique_ptr<Dyn_bitset> new_copy() const
+	std::unique_ptr<Dyn_bitset> new_copy() const override
 	{
 		return std::unique_ptr<Dyn_bitset>(new Dyn_bitset_implementation<Size>);
 	}
 
-	std::unique_ptr<Dyn_bitset> new_reset_copy() const
+	std::unique_ptr<Dyn_bitset> new_reset_copy() const override
 	{
 		auto ptr = new_copy();
 		ptr->reset();
