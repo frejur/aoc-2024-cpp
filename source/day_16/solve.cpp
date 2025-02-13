@@ -125,7 +125,7 @@ std::vector<aoc24_16::Path> aoc24_16::get_shortest_paths(
 			long new_score = p_new_copy.pending_score();
 			auto it = turn_scores.find(new_turn);
 			if (it == turn_scores.end()) {
-				turn_scores.try_emplace(new_turn, new_score);
+				turn_scores.emplace(new_turn, new_score);
 			} else if (it->second >= new_score) {
 				turn_scores[new_turn] = new_score;
 			} else {
