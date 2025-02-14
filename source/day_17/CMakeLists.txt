@@ -1,4 +1,4 @@
-set(day_number 16)
+set(day_number 17)
 message("Processing /day_${day_number}...")
 
 set(T_THIS "aoc_2024_day_${day_number}")
