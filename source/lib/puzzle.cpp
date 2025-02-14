@@ -273,7 +273,7 @@ aoc24::Answer::Answer(int day,
                       const std::string& name,
                       const std::string& tentative,
                       const std::string& definite)
-    : tp(Type::Integer)
+    : tp(Type::String)
     , src(source)
     , d(day)
     , pt(part)
