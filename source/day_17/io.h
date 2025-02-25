@@ -13,7 +13,7 @@ struct Register
 	    : value(0)
 	    , id{}
 	{}
-	long value;
+	long long value;
 	char id;
 };
 
@@ -28,7 +28,7 @@ std::istream& operator>>(std::istream& istr, Program& prog);
 
 void get_register_values_and_instructions_from_file(
     const std::string& file_path,
-    std::array<long, 3>& registers,
+    std::array<long long, 3>& registers,
     std::vector<std::pair<int, int>>& instructions);
 
 } // namespace aoc24_17

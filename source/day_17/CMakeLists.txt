@@ -8,10 +8,10 @@ add_executable(${T_THIS}
     io.h io.cpp
     comp.h comp.cpp
     solve.h solve.cpp
-    tests.h tests.cpp
 
     ../lib/puzzle.h
     ../lib/puzzle.cpp
+    opcodes.h 
 )
 
 # Dynamically copy the puzzle sample input into a

@@ -4,7 +4,7 @@
 
 void aoc24_17::get_register_values_and_instructions_from_file(
     const std::string& file_path,
-    std::array<long, 3>& registers,
+    std::array<long long, 3>& registers,
     std::vector<std::pair<int, int>>& instructions)
 {
 	std::ifstream ifs{file_path};
@@ -12,7 +12,7 @@ void aoc24_17::get_register_values_and_instructions_from_file(
 		throw std::logic_error("Could not open file '" + file_path + '\'');
 	}
 
-	long invalid_reg_val{std::numeric_limits<long>::min()};
+	long long invalid_reg_val{std::numeric_limits<long long>::min()};
 	std::array<char, 3> valid_reg_ids{'A', 'B', 'C'};
 	for (int i = 0; i < 3; ++i) {
 		Register reg;
@@ -25,7 +25,7 @@ void aoc24_17::get_register_values_and_instructions_from_file(
 			throw std::logic_error("Invalid register ID");
 		}
 
-		long& r_val = registers[i];
+		long long& r_val = registers[i];
 		r_val = reg.value;
 	}
 
@@ -44,7 +44,7 @@ std::istream& aoc24_17::operator>>(std::istream& istr, Register& reg)
 	std::string reg_txt;
 	char reg_id{};
 	char colon{};
-	long reg_val;
+	long long reg_val;
 
 	istr >> reg_txt >> reg_id >> colon >> reg_val;
 
