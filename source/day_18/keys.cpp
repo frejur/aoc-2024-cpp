@@ -23,6 +23,7 @@ const std::string passage_RL_key{"Horizontal_passages"};
 const std::string dead_end_key{"Dead_ends"};
 const std::string fork_corner_u_turn_key{"Forks_corners_u_turns"};
 const std::string all_passages_key{"All_passages"};
+const std::string shortest_path_key{"Shortest_path"};
 
 } // namespace keys
 

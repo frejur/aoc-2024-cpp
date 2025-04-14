@@ -51,6 +51,7 @@ extern const std::string passage_RL_key;
 extern const std::string dead_end_key;
 extern const std::string fork_corner_u_turn_key;
 extern const std::string all_passages_key;
+extern const std::string shortest_path_key;
 
 } // namespace keys
 

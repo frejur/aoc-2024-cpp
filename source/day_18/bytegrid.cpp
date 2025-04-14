@@ -15,12 +15,13 @@ bool pos_is_xy(
 
 constexpr std::array<int, 4> aoc24_18::Byte_grid::dir_flags_;
 
-aoc24_18::Byte_grid::Byte_grid(std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset,
-                               size_t size,
-                               int start_x,
-                               int start_y,
-                               int end_x,
-                               int end_y)
+aoc24_18::Byte_grid::Byte_grid(
+    std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset,
+    size_t size,
+    int start_x,
+    int start_y,
+    int end_x,
+    int end_y)
     : Bit_grid(size, std::move(dyn_bitset))
     // State
     , state_{Byte_grid_state::Uninitialized}
@@ -46,6 +47,7 @@ aoc24_18::Byte_grid::Byte_grid(std::unique_ptr<aoc24::Dyn_bitset> dyn_bitset,
     , dd_ends_(nullptr) // Dead-ends
     , cmb_fcu_(nullptr) // Combined Forks, Corners and U-turns
     , pas_all_(nullptr) // Both horizontal and vertical passages
+    , sh_path_(nullptr) // Shortest path
 
     // Start / End
     , start_(start_x, start_y)
@@ -214,6 +216,7 @@ void aoc24_18::Byte_grid::init_maps()
 	dd_ends_ = &add_map(keys::dead_end_key);
 	cmb_fcu_ = &add_map(keys::fork_corner_u_turn_key);
 	pas_all_ = &add_map(keys::all_passages_key);
+	sh_path_ = &add_map(keys::shortest_path_key);
 
 	state_ = Byte_grid_state::Maps_initialized;
 }
@@ -304,6 +307,44 @@ void aoc24_18::Byte_grid::mark_dead_ends()
 		find_and_mark_connected_dead_ends(pos, dir);
 	}
 	state_ = Byte_grid_state::Dead_ends_marked;
+}
+
+void aoc24_18::Byte_grid::mark_shortest_path(
+    const std::vector<Point> path) const
+{
+	auto& pmap = shortest_path_map();
+	pmap.reset();
+
+	for (int i = 0; i < path.size() - 1; ++i) {
+		const Vec& a = path[i].position();
+		const Vec& b = (path.size() == 1) ? path[i].position()
+		                                  : path[i + 1].position();
+		if (i == 0) {
+			if (!valid_xy(a.x, a.y)) {
+				throw std::invalid_argument("Point is OOB");
+			}
+		}
+		if (!valid_xy(b.x, b.y)) {
+			throw std::invalid_argument("Point is OOB");
+		}
+
+		const size_t start_pos = a.y * sz + a.x;
+		int num_tiles = 0;
+		int offset = 0;
+		if (a.y != b.y) {
+			// Row
+			num_tiles = (std::abs)(a.y - b.y) + 1;
+			offset = (a.y <= b.y) ? sz : -sz;
+		} else {
+			// Column
+			num_tiles = (std::abs)(a.x - b.x) + 1;
+			offset = (a.x <= b.x) ? 1 : -1;
+		}
+		int start_tile_idx = (i == 0) ? 0 : 1;
+		for (int j = start_tile_idx; j < num_tiles; ++j) {
+			pmap.set(start_pos + offset * static_cast<size_t>(j));
+		}
+	}
 }
 
 void aoc24_18::Byte_grid::find_and_mark_connected_dead_ends(size_t pos, Dir dir)
@@ -517,7 +558,14 @@ bool aoc24_18::Byte_grid::is_dummy(const Map& m) const
 {
 	return &m == dummy_;
 }
+
 //------------------------------------------------------------------------------
+
+aoc24_18::Byte_grid::Map& aoc24_18::Byte_grid::shortest_path_map() const
+{
+	throw_if_no_map();
+	return *sh_path_;
+}
 
 aoc24_18::Byte_grid::Map& aoc24_18::Byte_grid::all_passages_map() const
 {
@@ -729,11 +777,37 @@ void aoc24_18::Byte_grid::print_map_verbose(std::ostream& ostr) const
 void aoc24_18::Byte_grid::print_path(
     const std::vector<Point>& path, std::ostream& ostr) const
 {
+	throw_if_not_ready();
 	if (path.empty()) {
 		return;
 	}
 	merge_path_onto_print_map(path);
 	internal_print_map(ostr, true);
+}
+
+void aoc24_18::Byte_grid::print_shortest_path(
+    std::ostream& ostr) const
+{
+	throw_if_not_ready();
+	print_->reset();
+	*print_ |= shortest_path_map();
+	internal_print_map(ostr, true);
+}
+
+void aoc24_18::Byte_grid::update_shortest_path(
+    const std::vector<Point>& path)
+{
+	if (path.empty()) {
+		return;
+	}
+	mark_shortest_path(path);
+}
+
+bool aoc24_18::Byte_grid::tile_is_on_shortest_path(
+    int pos_x, int pos_y) const
+{
+	size_t pos_idx{xy_to_idx(pos_x, pos_y)};
+	return shortest_path_map().test(pos_idx);
 }
 
 //------------------------------------------------------------------------------

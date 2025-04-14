@@ -37,21 +37,41 @@ try {
 	            start_xy.y,
 	            end_xy.x,
 	            end_xy.y};
-	const size_t p1_num_bytes = pz.is_testing() ? 12 : 1024;
+
+	constexpr size_t p1_num_bytes_test{12};
+	constexpr size_t p1_num_bytes_inp{1024};
+	const size_t p1_num_bytes = pz.is_testing() ? p1_num_bytes_test
+	                                            : p1_num_bytes_inp;
 	for (size_t i = 0; i < p1_num_bytes; ++i) {
 		g.add_corrupted_byte(byte_pos_v[i].x, byte_pos_v[i].y);
 	}
 	g.update_corrupted_bytes();
-	g.print_map();
 
 	// Part one
-	std::vector<Point> path = get_shortest_path(g);
-	{
-		std::cout << '\n', g.print_path(path);
-	}
+	std::vector<Point> p1_path = get_shortest_path(g);
+	g.update_shortest_path(p1_path);
 	pz.file_answer(1,
 	               "Min. number of steps",
-	               path.empty() ? -1 : path.back().number_of_steps());
+	               p1_path.empty() ? -1 : p1_path.back().number_of_steps());
+
+	// Part two
+	int blocking_byte{static_cast<int>(p1_num_bytes) + 1};
+	for (; blocking_byte < num_bytes; ++blocking_byte) {
+		aoc24::Vec2d b{byte_pos_v[blocking_byte]};
+		g.add_corrupted_byte(b.x, b.y);
+		if (g.tile_is_on_shortest_path(b.x, b.y)) {
+			g.update_corrupted_bytes();
+			std::vector<Point> p2_path = get_shortest_path(g);
+			if (p2_path.empty()) {
+				break;
+			}
+			g.update_shortest_path(p2_path);
+		}
+	}
+	std::string p2_first_blocking_pos{
+	    std::to_string(byte_pos_v[blocking_byte].x) + ","
+	    + std::to_string(byte_pos_v[blocking_byte].y)};
+	pz.file_answer(2, "Blocking byte position", p2_first_blocking_pos);
 
 	pz.print_answers();
 

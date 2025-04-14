@@ -19,16 +19,7 @@ std::vector<Point> reconstruct_path(
     const std::unordered_map<aoc24::Vec2d, aoc24::Vec2d, aoc24::Vec2d_hash>&
         xy_map,
     const aoc24::Vec2d& start_pos,
-    const aoc24::Vec2d& goal_pos,
-    bool reverse_pts = false);
-std::vector<Point> reconstruct_and_merge_paths(
-    const std::unordered_map<aoc24::Vec2d, aoc24::Vec2d, aoc24::Vec2d_hash>&
-        lhs_xy_map,
-    const std::unordered_map<aoc24::Vec2d, aoc24::Vec2d, aoc24::Vec2d_hash>&
-        rhs_xy_map,
-    const aoc24::Vec2d& start_pos,
-    const aoc24::Vec2d& xsect_pos,
-    const aoc24::Vec2d& goal_pos);
+    const aoc24::Vec2d& end_pos);
 
 enum class Path_result {
 	No_result,
@@ -40,14 +31,7 @@ enum class Path_result {
 	Intersection,
 	Goal
 };
-Path_result advance_path(
-    const Byte_grid& grid,
-    aoc24::Vec2d& xsect_pos,
-    std::priority_queue<Point, std::vector<Point>, Point_comparator>& pt_queue,
-    std::unordered_map<aoc24::Vec2d, aoc24::Vec2d, aoc24::Vec2d_hash>&
-        pos_history,
-    std::unordered_map<aoc24::Vec2d, long, aoc24::Vec2d_hash>& position_num_steps,
-    bool ignore_xsect = false);
+
 Path_result advance_path(
     const Byte_grid& grid,
     std::priority_queue<Point, std::vector<Point>, Point_comparator>& pt_queue,

@@ -106,6 +106,10 @@ class Byte_grid : public aoc24::Bit_grid
 	Map& fork_corner_u_turn_map() const;
 	Map& all_passages_map() const;
 
+	// Shortest path
+	Map* sh_path_;
+	Map& shortest_path_map() const;
+
 	//
 	// Start / End
 	//--------------------------------------------------------------------------
@@ -122,6 +126,7 @@ class Byte_grid : public aoc24::Bit_grid
 	void mark_corrupted_bytes();
 	void mark_path_tiles(); // Forks, corners, u-turns, passages
 	void mark_dead_ends();
+	void mark_shortest_path(const std::vector<Point> path) const;
 
 	// Mark the tile at `start_pos` as a dead-end if applicable.
 	// Recursively repeat for any connected tiles.
@@ -193,10 +198,14 @@ public:
 
 	int number_of_forks_corners_and_u_turns() const;
 
+	void update_shortest_path(const std::vector<Point>& path);
+	bool tile_is_on_shortest_path(int pos_x, int pos_y) const;
+
 	void print_map(std::ostream& ostr = std::cout) const;
 	void print_map_verbose(std::ostream& ostr = std::cout) const;
 	void print_path(const std::vector<Point>& path,
 	                std::ostream& ostr = std::cout) const;
+	void print_shortest_path(std::ostream& ostr = std::cout) const;
 };
 
 } // namespace aoc24_18

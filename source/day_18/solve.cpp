@@ -2,8 +2,6 @@
 #include "solve.h"
 
 namespace {
-aoc24::Vec2d noxy{-1, -1};
-
 using L_matrix = std::vector<std::vector<long>>;
 using Bgrid = aoc24_18::Byte_grid;
 using Vec = aoc24::Vec2d;
@@ -40,13 +38,9 @@ std::vector<aoc24_18::Point> aoc24_18::get_shortest_path(
 	// (Type aliases definitions at the top)
 	// clang-format off
 	L_matrix	dist_to_end{manhattan_distance_grid(bgrid)};
-	L_matrix	dist_to_start{manhattan_distance_grid(bgrid, true)};
-	Queue		pt_queue_fr_start{Point_comparator(dist_to_end)};
-	Queue		pt_queue_fr_end{Point_comparator(dist_to_start)};
-	Pos_map		pos_history_fr_start;
-	Pos_map		pos_history_fr_end;
-	Step_map	pos_num_steps_fr_start;
-	Step_map	pos_num_steps_fr_end;
+	Queue		queue{Point_comparator(dist_to_end)};
+	Pos_map		history;
+	Step_map	num_steps;
 	// clang-format on
 
 	std::vector<Dir> start_dirs = bgrid.get_start_point_directions();
@@ -59,102 +53,33 @@ std::vector<aoc24_18::Point> aoc24_18::get_shortest_path(
 	Vec end_pos = bgrid.end_position();
 
 	for (const Dir dir : start_dirs) {
-		pt_queue_fr_start.emplace(start_pos.x, start_pos.y, dir, 0);
+		queue.emplace(start_pos.x, start_pos.y, dir, 0);
 	}
 
-	for (const Dir dir : end_dirs) {
-		pt_queue_fr_end.emplace(end_pos.x, end_pos.y, dir, 0);
-	}
-
-	// Perform a bi-directional for the shortest path,
-	// 1. From the starting point until the end point.
-	// 2. From the end point until the starting point.
-	// Continue until one of the paths reaches the target point,
-	// or until both paths intersect.
-	Vec xsect = noxy;
-
-	bool fr_start{true};
-	bool found_xsect{false};
-	while (!pt_queue_fr_start.empty() || !pt_queue_fr_end.empty()) {
-		Queue& queue = fr_start ? pt_queue_fr_start : pt_queue_fr_end;
-		Pos_map& history = fr_start ? pos_history_fr_start : pos_history_fr_end;
-		Step_map& num_steps = fr_start ? pos_num_steps_fr_start
-		                               : pos_num_steps_fr_end;
-
-		auto result = advance_path(bgrid, xsect, queue, history, num_steps);
+	while (!queue.empty()) {
+		Path_result result = advance_path(bgrid, queue, history, num_steps);
 		switch (result) {
 		case Path_result::Goal: {
-			const Vec& start = fr_start ? bgrid.start_position()
-			                            : bgrid.end_position();
-			const Vec& end = fr_start ? bgrid.end_position()
-			                          : bgrid.start_position();
-			return reconstruct_path(history, start, end);
+			return reconstruct_path(history, start_pos, end_pos);
 		}
-		case Path_result::Intersection:
-			found_xsect = true;
-			break;
+		case Path_result::Corner_or_fork:
 		case Path_result::Queue_empty:
 		case Path_result::Illegal_turn:
 		case Path_result::Dead_end:
 		case Path_result::Loop:
-		case Path_result::Corner_or_fork:
 		default:
 			break;
 		}
-
-		fr_start = !fr_start;
 	}
 
-	if (!found_xsect) {
-		return {};
-	}
-
-	// Find shortest path to intersection
-	L_matrix dist_to_xsect{manhattan_distance_grid(bgrid, xsect)};
-	Queue pt_queue_to_xsect_fr_start{Point_comparator(dist_to_xsect)};
-	Queue pt_queue_to_xsect_fr_end{Point_comparator(dist_to_xsect)};
-	pos_history_fr_start.clear();
-	pos_history_fr_end.clear();
-	pos_num_steps_fr_start.clear();
-	pos_num_steps_fr_end.clear();
-
-	for (const Dir dir : start_dirs) {
-		pt_queue_fr_start.emplace(start_pos.x, start_pos.y, dir, 0);
-	}
-
-	for (const Dir dir : end_dirs) {
-		pt_queue_fr_end.emplace(end_pos.x, end_pos.y, dir, 0);
-	}
-
-	for (Path_result result = Path_result::No_result;
-	     result != Path_result::Goal;
-	     result = advance_path(bgrid,
-	                           pt_queue_to_xsect_fr_start,
-	                           pos_history_fr_start,
-	                           pos_num_steps_fr_start)) {
-	}
-	for (Path_result result = Path_result::No_result;
-	     result != Path_result::Goal;
-	     result = advance_path(bgrid,
-	                           pt_queue_to_xsect_fr_end,
-	                           pos_history_fr_end,
-	                           pos_num_steps_fr_end)) {
-	}
-
-	return reconstruct_and_merge_paths(pos_history_fr_start,
-	                                   pos_history_fr_end,
-	                                   bgrid.start_position(),
-	                                   xsect,
-	                                   bgrid.end_position());
+	return {};
 }
 
 aoc24_18::Path_result aoc24_18::advance_path(
     const Bgrid& grid,
-    Vec& xsect_pos,
     Queue& pt_queue,
     Pos_map& pos_history,
-    Step_map& position_num_steps,
-    bool ignore_xsect)
+    Step_map& position_num_steps)
 {
 	if (pt_queue.empty()) {
 		return Path_result::Queue_empty;
@@ -176,11 +101,6 @@ aoc24_18::Path_result aoc24_18::advance_path(
 	if (next_xy == grid.end_position()) {
 		pos_history.try_emplace(grid.end_position(), prev_xy);
 		return Path_result::Goal;
-	}
-
-	if (!ignore_xsect && next_xy == xsect_pos) {
-		pos_history.try_emplace(next_xy, prev_xy);
-		return Path_result::Intersection;
 	}
 
 	if (next_xy == prev_xy) {
@@ -214,12 +134,10 @@ aoc24_18::Path_result aoc24_18::advance_path(
 		}
 	}
 
-	if (!ignore_xsect) {
-		xsect_pos = next_xy; // Update point of intersection
-	}
-
 	return Path_result::Corner_or_fork;
 }
+
+//------------------------------------------------------------------------------
 
 std::vector<std::vector<long>> aoc24_18::manhattan_distance_grid(
     const Bgrid& m, const aoc24::Vec2d& target_xy)
@@ -243,25 +161,26 @@ std::vector<std::vector<long>> aoc24_18::manhattan_distance_grid(
 	return manhattan_distance_grid(m, end_pt);
 }
 
+//------------------------------------------------------------------------------
+
 std::vector<aoc24_18::Point> aoc24_18::reconstruct_path(
     const std::unordered_map<aoc24::Vec2d, aoc24::Vec2d, aoc24::Vec2d_hash>&
         xy_map,
-    const aoc24::Vec2d& begin_pos,
-    const aoc24::Vec2d& break_pos,
-    bool reverse_pts)
+    const Vec& start_pos,
+    const Vec& end_pos)
 {
 	std::vector<aoc24_18::Point> final_path;
 	std::vector<aoc24::Vec2d> path_reversed; // Store Vec2d first
 
-	aoc24::Vec2d local_pos = break_pos;
+	aoc24::Vec2d local_pos = end_pos;
 
-	if (break_pos == begin_pos) {
-		final_path.emplace_back(begin_pos.x, begin_pos.y, Dir::Up, 0);
+	if (end_pos == start_pos) {
+		final_path.emplace_back(start_pos.x, start_pos.y, Dir::Up, 0);
 		return final_path;
 	}
 
 	// Backtrack from the end position using parent XY map
-	while (local_pos != begin_pos) {
+	while (local_pos != start_pos) {
 		path_reversed.push_back(local_pos);
 
 		auto it = xy_map.find(local_pos);
@@ -270,12 +189,10 @@ std::vector<aoc24_18::Point> aoc24_18::reconstruct_path(
 		}
 		local_pos = it->second;
 	}
-	path_reversed.push_back(begin_pos); // Add start position back in
+	path_reversed.push_back(start_pos); // Add start position back in
 
-	if (!reverse_pts) {
-		// Reverse to ensure correct order
-		std::reverse(path_reversed.begin(), path_reversed.end());
-	}
+	// Reverse to ensure correct order
+	std::reverse(path_reversed.begin(), path_reversed.end());
 
 	// Convert coordinates to Points (Reverse directions if needed)
 	long num_steps{0};
@@ -288,13 +205,13 @@ std::vector<aoc24_18::Point> aoc24_18::reconstruct_path(
 			num_steps += std::abs(local_xy.x - prior_xy.x)
 			             + std::abs(local_xy.y - prior_xy.y);
 		}
-		Dir dir = !reverse_pts ? Dir::Up : Dir::Down;
+		Dir dir = Dir::Up;
 		if (local_xy.x < later_xy.x) {
-			dir = !reverse_pts ? Dir::Right : Dir::Left;
+			dir = Dir::Right;
 		} else if (local_xy.x > later_xy.x) {
-			dir = !reverse_pts ? Dir::Left : Dir::Right;
+			dir = Dir::Left;
 		} else if (local_xy.y < later_xy.y) {
-			dir = !reverse_pts ? Dir::Down : Dir::Up;
+			dir = Dir::Down;
 		}
 		final_path.emplace_back(local_xy.x, local_xy.y, dir, num_steps);
 	}
@@ -308,55 +225,4 @@ std::vector<aoc24_18::Point> aoc24_18::reconstruct_path(
 	                        num_steps);
 
 	return final_path;
-}
-
-std::vector<aoc24_18::Point> aoc24_18::reconstruct_and_merge_paths(
-    const std::unordered_map<aoc24::Vec2d, aoc24::Vec2d, aoc24::Vec2d_hash>&
-        lhs_xy_map,
-    const std::unordered_map<aoc24::Vec2d, aoc24::Vec2d, aoc24::Vec2d_hash>&
-        rhs_xy_map,
-    const aoc24::Vec2d& start_pos,
-    const aoc24::Vec2d& xsect_pos,
-    const aoc24::Vec2d& goal_pos)
-{
-	std::vector<Point> lhs_pts{
-	    reconstruct_path(lhs_xy_map, start_pos, xsect_pos)};
-	std::vector<Point> rhs_pts{
-	    reconstruct_path(rhs_xy_map, goal_pos, xsect_pos, true)};
-	if (lhs_pts.size() < 2 || rhs_pts.size() < 2) {
-		throw std::logic_error("Cannot merge incomplete paths");
-	}
-
-	std::vector<Point> pts{};
-	pts.reserve(lhs_pts.size() + rhs_pts.size() - 1);
-	pts.insert(pts.end(), lhs_pts.begin(), lhs_pts.end());
-	pts.insert(pts.end(), rhs_pts.begin() + 1, rhs_pts.end());
-
-	long num_steps{0};
-	for (int i = 0; i < pts.size(); ++i) {
-		Point& local_pt{pts[i]};
-		const aoc24::Vec2d& local_xy{local_pt.position()};
-		if (i > 0) {
-			const aoc24::Vec2d& prior_xy{pts[i - 1].position()};
-			num_steps += std::abs(local_xy.x - prior_xy.x)
-			             + std::abs(local_xy.y - prior_xy.y);
-		}
-		local_pt.set_number_of_steps(num_steps);
-	}
-	return pts;
-}
-
-aoc24_18::Path_result aoc24_18::advance_path(
-    const Byte_grid& grid,
-    std::priority_queue<Point, std::vector<Point>, Point_comparator>& pt_queue,
-    std::unordered_map<aoc24::Vec2d, aoc24::Vec2d, aoc24::Vec2d_hash>&
-        pos_history,
-    std::unordered_map<aoc24::Vec2d, long, aoc24::Vec2d_hash>& position_num_steps)
-{
-	return advance_path(grid,
-	                    noxy,
-	                    pt_queue,
-	                    pos_history,
-	                    position_num_steps,
-	                    false);
 }
