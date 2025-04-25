@@ -8,6 +8,7 @@ build/
 build*/
 .vs/
 source/out/
+cmake-build*/
 
 # CMake cache
 CMakeLists.txt.user
@@ -45,3 +46,6 @@ CMakeSettings.json
 *.exe
 *.out
 *.app
+
+# CLion
+/.idea
