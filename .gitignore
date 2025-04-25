@@ -45,3 +45,6 @@ CMakeSettings.json
 *.exe
 *.out
 *.app
+
+# CLion
+/.idea
