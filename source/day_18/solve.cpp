@@ -1,5 +1,6 @@
 #include "bytegrid.h"
 #include "solve.h"
+#include <algorithm>
 
 namespace {
 using L_matrix = std::vector<std::vector<long>>;
@@ -99,7 +100,9 @@ aoc24_18::Path_result aoc24_18::advance_path(
 	}
 
 	if (next_xy == grid.end_position()) {
-		pos_history.try_emplace(grid.end_position(), prev_xy);
+		if (pos_history.find(grid.start_position()) == pos_history.end()) {
+			pos_history.insert(std::make_pair(grid.end_position(), prev_xy));
+		}
 		return Path_result::Goal;
 	}
 
@@ -122,7 +125,9 @@ aoc24_18::Path_result aoc24_18::advance_path(
 	                    + std::abs(next_xy.x - prev_xy.x)
 	                    + std::abs(next_xy.y - prev_xy.y)};
 
-	pos_history.try_emplace(next_xy, prev_xy);
+	if (pos_history.find(next_xy) == pos_history.end()) {
+		pos_history.insert(std::make_pair(next_xy, prev_xy));
+	}
 
 	// Corner / Junction
 	for (int i = 0; i < numdirs; ++i) {
